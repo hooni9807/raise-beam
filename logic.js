@@ -131,7 +131,7 @@ const SPECIAL_ENDINGS = [
   {"id": "supper", "title": "골목의 심야 식당", "text": "야근을 마친 이웃에게 건넨 한 그릇이 시작이었어요. 희범이 식당의 마지막 주문은 늘 “오늘도 그거 주세요”입니다.", "counts": {"meal": 32, "volunteer": 28, "farm": 24}, "stats": {"manner": 75, "grit": 63}, "hidden": true},
   {"id": "rescue", "title": "산악 구조대장", "text": "해가 넘어가기 전 마지막 등산객을 찾았어요. 무전기에서 전원 귀환이라는 대답이 돌아옵니다.", "counts": {"run": 32, "safety": 30, "volunteer": 15}, "stats": {"stamina": 85, "courage": 80}, "hidden": true},
   {"id": "chalk", "title": "작은 학교의 교장", "text": "폐교 안내문을 떼고 첫 수업 시간을 써 붙였어요. 동네 어른들도 작은 의자를 끌어와 앉습니다.", "counts": {"teach": 26, "study": 30, "volunteer": 20}, "stats": {"smarts": 80, "manner": 78}, "hidden": true},
-  {"id": "comeback", "title": "재기의 더블스 주장", "text": "결승 매치 포인트에서 동료에게 서브 코스를 알려 줬어요. 먼저 넘어졌던 희범이가 이번엔 둘이서 일어섰습니다.", "counts": {"league": 32, "lesson": 23, "instruct": 16}, "stats": {"skill": 83, "stamina": 62}, "hidden": true},
+  {"id": "comeback", "title": "탁구 해설위원", "text": "첫 생중계에서 희범이가 느린 화면을 짚었어요. “공이 옆으로 튀었죠? 라켓이 공의 옆면을 스쳤거든요.” 다음 서브가 들어오자 옆자리 캐스터가 웃었어요. “이번엔 저도 봤어요!”", "counts": {"league": 32, "lesson": 23, "instruct": 16}, "stats": {"skill": 83, "stamina": 62}, "hidden": true},
   {"id": "closedgym", "title": "불 꺼진 체육관", "text": "회원에게 가르칠 동작을 혼자서만 연습했어요. 개장 첫날 텅 빈 사물함에 열쇠가 그대로 걸려 있습니다.", "counts": {"run": 40, "instruct": 4}, "stats": {}, "cap": {"instruct": 5}},
   {"id": "unsold", "title": "창고에 쌓인 수확", "text": "밭에서는 풍년이었지만 출하 날짜를 놓쳤어요. 농장 창고에 상자만 천장까지 쌓였습니다.", "counts": {"farm": 43, "rest": 31}, "stats": {}, "cap": {"study": 2}},
   {"id": "spareparts", "title": "멈춘 발명품", "text": "부품을 사서 조립하고 다시 뜯는 동안 설명서는 첫 장 그대로였어요. 시연 날에도 스위치는 켜지지 않았습니다.", "counts": {"craft": 37, "farm": 15}, "stats": {}, "cap": {"study": 2}},

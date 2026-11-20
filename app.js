@@ -1,6 +1,6 @@
-import * as L from './logic.js?v=secret-stories';
+import * as L from './logic.js?v=commentator';
 import { playPrologue } from './prologue.js?v=birth1996';
-import { openTutorial } from './tutorial.js?v=secret-stories';
+import { openTutorial } from './tutorial.js?v=commentator';
 
 const KEY = 'raise-beam-v3';
 const DEX_KEY = 'raise-beam-endings';
@@ -46,7 +46,7 @@ function save() {
 const TIRED = 35;
 const imageRoot = () => state?.gender === 'female' ? 'img/female' : 'img';
 const stageImg = (stage, yawn) => `${imageRoot()}/stages/${yawn ? 'yawn/' : ''}${stage}.webp`;
-const endingImg = (id, yawn) => `${imageRoot()}/endings/${yawn ? 'yawn/' : ''}${id}.webp`;
+const endingImg = (id, yawn) => `${imageRoot()}/endings/${yawn ? 'yawn/' : ''}${id}.webp${id === 'comeback' ? '?v=commentator' : ''}`;
 const situationImg = (stage, face) => `${imageRoot()}/situations/${stage}/${face}.webp`;
 let reaction = null;
 let conversationTurn = 0;
