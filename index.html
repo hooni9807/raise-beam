@@ -64,12 +64,6 @@
           </div>
         </div>
 
-        <article class="goal">
-          <h2>지금 가장 가까운 꿈</h2>
-          <p class="goal-sub">84일째에 스탯에 맞는 직업이 엔딩으로 나와요. 지친 날이 많거나 인성이 낮으면 배드 엔딩이에요.</p>
-          <ul class="dreams" id="dreams"></ul>
-          <p class="goal-final" id="goalFinal"></p>
-        </article>
       </section>
 
       <!-- 기록 -->
@@ -107,7 +101,7 @@
     </nav>
   </div>
 
-  <!-- 새로 키우기: 국가와 라켓 고르기 -->
+  <!-- 새로 키우기: 캐릭터와 국가 고르기 -->
   <dialog id="setup" class="picker">
     <form id="setupForm">
       <h2 class="m-title">어떤 희범이를 키울까요?</h2>
@@ -127,14 +121,15 @@
     </form>
   </dialog>
 
-  <!-- 탁구 분기: 첫 레슨 때 라켓, 22일째 전형 -->
+  <!-- 탁구 분기: 매 방문마다 오늘의 활동 선택 -->
   <dialog id="pick" class="picker">
     <form id="pickForm">
-      <p class="m-ico" id="pickIco"></p>
-      <h2 class="m-title" id="pickTitle"></h2>
-      <p class="m-text" id="pickLead"></p>
+      <p class="m-ico" id="pickIco">🏓</p>
+      <h2 class="m-title" id="pickTitle">탁구장에서 무엇을 할까요?</h2>
+      <p class="m-text" id="pickLead">오늘 할 활동을 고르세요. 일정 한 칸을 사용해요.</p>
       <div class="options" id="pickOpts"></div>
-      <button class="btn" id="pickBtn"></button>
+      <button class="btn" id="pickBtn">활동 시작</button>
+      <button type="button" id="pickCancel">돌아가기</button>
     </form>
   </dialog>
 

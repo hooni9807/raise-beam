@@ -34,7 +34,7 @@ const stageImg = (stage, yawn) => `${imageRoot()}/stages/${yawn ? 'yawn/' : ''}$
 const endingImg = (id, yawn) => `${imageRoot()}/endings/${yawn ? 'yawn/' : ''}${id}.webp`;
 const situationImg = (stage, face) => `${imageRoot()}/situations/${stage}/${face}.webp`;
 const actionFaces = {
-  meal: 'relaxed', lesson: 'determined', study: 'focus', run: 'victory',
+  meal: 'relaxed', study: 'focus', run: 'victory',
   safety: 'focus', farm: 'surprised', volunteer: 'praised', craft: 'victory', rest: 'relaxed',
 };
 let reaction = null;
@@ -91,20 +91,9 @@ const jingle = (notes) => notes.forEach((f, i) => setTimeout(() => beep(f, 0.12)
 /* ---------- 렌더 ---------- */
 const GREET = ['오늘은 뭐 할까?', '나 배고파…', '나중에 뭐가 될까?', '오늘도 힘내 볼게!', '같이 놀아 줘!', '하암… 졸려'];
 const greet = () => GREET[state.day % GREET.length];
-const reqText = (req) => Object.entries(req).map(([k, v]) => `${L.statName(k)} ${v}`).join(', ');
-const FIT_LABEL = ['궁합 보통', '궁합 무난', '궁합 최고'];
-
-function careerNeeds(s, c) {
-  const parts = [reqText(c.req(s))];
-  if (c.tt) parts.push(`랭킹 포인트 ${L.fmtNum(L.COUNTRIES[s.country].need)}`);
-  if (c.money) parts.push(`돈 ${L.fmtNum(c.money)}원`);
-  if ((c.tt || c.id === 'pro') && !s.racket) parts.push('탁구 레슨 시작');
-  return parts.join(', ');
-}
-
 function render() {
   const s = state, stage = L.stageOf(Math.min(s.day, L.DAYS)), cap = L.statCap(s.day);
-  const country = L.COUNTRIES[s.country], racket = s.racket && L.RACKETS[s.racket], style = s.style && L.STYLES[s.style];
+  const country = L.COUNTRIES[s.country];
   $('chips').innerHTML = `
     <span class="chip">📈 <b>Lv.${L.level(s)}</b></span>
     <span class="chip" aria-label="남은 일정 ${s.ap}칸">⚡<span class="ap">${[0, 1, 2].map((i) => `<i class="${i < s.ap ? 'on' : ''}"></i>`).join('')}</span></span>
@@ -116,8 +105,6 @@ function render() {
   $('stageTag').textContent = stage.name;
   $('sonName').textContent = s.name;
   $('tags').innerHTML = `<span class="tag">${country.flag} ${country.name}</span>` +
-    (racket ? `<span class="tag">🏓 ${racket.name}</span>` : '') +
-    (style ? `<span class="tag">${style.icon} ${style.name}</span>` : racket ? '<span class="tag pending">전형은 22일째에</span>' : '') +
     (s.burnout ? `<span class="tag warn">지친 날 ${s.burnout}/${L.BURNOUT_LIMIT}</span>` : '');
   $('stats').innerHTML = L.STATS.map((t) => `
     <li><span>${t.name}</span>
@@ -127,7 +114,7 @@ function render() {
     (cap < 100 ? `<li class="cap-note">${stage.name} 때는 ${cap}까지만 자라요</li>` : '');
 
   const mt = L.MATCHES[s.match];
-  const blocked = s.matchDone || s.ap < 2 || s.ending || L.needsStyle(s);
+  const blocked = s.matchDone || s.ap < 2 || s.ending;
   $('match').innerHTML = `
     <span class="ico" aria-hidden="true">${mt.icon}</span>
     <p class="k">오늘의 도전</p>
@@ -136,17 +123,17 @@ function render() {
     <button class="btn" id="matchBtn" ${blocked ? 'disabled' : ''}>${s.matchDone ? '도전 끝' : '도전하기'}</button>`;
   $('matchBtn').onclick = onMatch;
 
-  $('actions').innerHTML = Object.entries(L.ACTIONS).map(([k, a]) => `
+  $('actions').innerHTML = Object.entries({ club: { name: "탁구장 가기", icon: "🏓" }, ...L.ACTIONS }).map(([k, a]) => `
     <button class="act" data-act="${k}" ${s.ap < 1 || s.ending ? 'disabled' : ''}>
       <span aria-hidden="true">${a.icon}</span>${a.name}
-      <small>${k === 'lesson' && !s.racket ? '라켓 고르기' : a.cost ? `-${a.cost / 10000}만원` : a.earn ? '알바비 +' : a.cond > 0 ? `컨디션 +${a.cond}` : `컨디션 ${a.cond}`}</small>
+      <small>${k === 'club' ? '활동 선택' : a.cost ? `-${a.cost / 10000}만원` : a.earn ? '알바비 +' : a.cond > 0 ? `컨디션 +${a.cond}` : `컨디션 ${a.cond}`}</small>
     </button>`).join('');
 
   $('slots').innerHTML = [0, 1, 2].map((i) => `<li class="${s.today[i] ? 'done' : ''}">${s.today[i] || ''}</li>`).join('');
   $('endDay').disabled = !!s.ending;
   $('endDay').textContent = s.day >= L.DAYS ? '엔딩 보기' : '하루 마치기';
 
-  if (s.racket) {
+  if (L.clubVisits(s)) {
     $('rankK').textContent = '세계 랭킹';
     $('rankNum').textContent = `${L.worldRank(s)}위`;
     $('rankSub').textContent = `포인트 ${L.fmtNum(s.points)}`;
@@ -157,17 +144,6 @@ function render() {
   }
   $('condNum').textContent = `${s.cond}%`;
   $('condBar').style.cssText = `--w:${s.cond}%;--c:${s.cond < 30 ? '#FF6F59' : s.cond < 60 ? '#F5B700' : '#2FB67C'}`;
-
-  $('dreams').innerHTML = L.topCareers(s).map(({ c, p }) => `
-    <li>
-      <span class="d-ico" aria-hidden="true">${c.icon}</span>
-      <span class="d-body"><b>${c.name}</b><small>${careerNeeds(s, c)}</small>
-        <span class="meter"><i style="--w:${Math.round(p * 100)}%;--c:${p >= 1 ? '#2FB67C' : '#FF6F59'}"></i></span></span>
-      <span class="d-pct">${Math.round(p * 100)}%</span>
-    </li>`).join('');
-  $('goalFinal').textContent = style && !s.ending
-    ? `탁구 국가대표가 되면 세계선수권 결승 예상 승률 ${Math.round(L.finalChance(s) * 100)}% (${racket.name}, ${FIT_LABEL[L.fitLevel(s) * 2]})`
-    : '';
 
   $('log').innerHTML = s.log.length
     ? s.log.map((e) => `<li><span><span class="d">${e.day}일째</span> ${e.acts || '푹 쉬었어요'}${e.tired ? ' 😵' : ''}</span>${e.points ? `<span class="f">포인트 +${L.fmtNum(e.points)}</span>` : ''}</li>`).join('')
@@ -232,7 +208,7 @@ let current;
 function modal(html, btn = '확인', onClose) { queue.push({ html, btn, onClose }); if (!$('modal').open) nextModal(); }
 function nextModal() {
   current = queue.shift();
-  if (!current) { if (L.needsStyle(state)) openStylePick(); return; }
+  if (!current) return;
   $('modalBody').innerHTML = current.html; $('modalBtn').textContent = current.btn; $('modal').showModal();
 }
 $('modal').addEventListener('close', () => { current?.onClose?.(); setTimeout(nextModal, 120); });
@@ -247,12 +223,12 @@ function afterChange(res) {
 }
 
 /* ---------- 선택 화면 (분기) ---------- */
-function optionCards(name, entries, checked, extra = () => '') {
+function optionCards(name, entries, checked) {
   return entries.map(([id, o]) => `
     <label class="opt">
       <input type="radio" name="${name}" value="${id}" ${id === checked ? 'checked' : ''} required>
       <span class="opt-body">
-        <b>${o.flag || o.icon || '🏓'} ${o.name}</b>${extra(id, o)}
+        <b>${o.flag || o.icon || '🏓'} ${o.name}</b>
         <small>${o.desc}</small>
       </span>
     </label>`).join('');
@@ -277,60 +253,30 @@ $('setupForm').addEventListener('submit', (e) => {
   jingle([523, 659, 784]);
 });
 
-// 라켓·전형 고르기는 같은 대화상자를 쓴다
-let onPick;
-function openPick({ ico, title, lead, opts, btn, then }) {
-  if ($('pick').open || $('modal').open) return;
-  $('pickIco').textContent = ico; $('pickTitle').textContent = title; $('pickLead').textContent = lead;
-  $('pickOpts').innerHTML = opts; $('pickBtn').textContent = btn;
-  onPick = then;
-  $('pick').showModal();
-}
-$('pickForm').addEventListener('submit', (e) => {
+$('setup').addEventListener('cancel', e => { if (!state.started) e.preventDefault(); });
+$('pickForm').addEventListener('submit', e => {
   e.preventDefault();
-  const v = new FormData(e.target).get('choice');
-  if (v && onPick(v)) $('pick').close();
+  const key = new FormData(e.target).get('choice');
+  if (!L.CLUB[key]) return;
+  const wins = state.ttWins;
+  const result = L.doAction(state, key);
+  if (result.error) { $('pickLead').textContent = result.error; return; }
+  $('pick').close();
+  const face = { lesson: 'determined', teach: 'praised', league: state.ttWins > wins ? 'victory' : 'defeat' };
+  react(face[key]);
+  beep(660);
+  afterChange(result);
 });
-function openRacketPick() {
-  openPick({
-    ico: '🏓', title: '어떤 라켓으로 배울까요?', btn: '이 라켓으로 시작',
-    lead: '한 번 고르면 바꿀 수 없어요. 22일째에 고를 전형과의 궁합도 생각해 보세요.',
-    opts: optionCards('choice', Object.entries(L.RACKETS), 'shake'),
-    then: (v) => {
-      if (!L.chooseRacket(state, v)) return false;
-      react('determined');
-      say(`${L.RACKETS[v].name} 너무 멋져!`);
-      jingle([659, 784]); render();
-      if (L.needsStyle(state)) setTimeout(openStylePick, 200);
-      return true;
-    },
-  });
-}
-function openStylePick() {
-  const rk = L.RACKETS[state.racket];
-  openPick({
-    ico: '🌱', title: '탁구 전형을 정할 시간이에요', btn: '이 전형으로 정하기',
-    lead: `${L.SON.nick}이의 라켓은 ${josa(rk.name, '이에요', '예요')}. 궁합이 좋은 전형을 고르면 탁구 대회와 세계선수권 결승에서 유리해요.`,
-    opts: optionCards('choice', Object.entries(L.STYLES), null, (id, o) =>
-      ` <span class="fit fit-${L.fitLevel(state, id) * 2}">${FIT_LABEL[L.fitLevel(state, id) * 2]}</span><em>국가대표 조건: ${reqText(o.req)}</em>`),
-    then: (v) => {
-      if (!L.chooseStyle(state, v)) return false;
-      jingle([659, 784, 1046]);
-      say(`나는 이제 ${josa(L.STYLES[v].name, '이야', '야')}!`);
-      hop(); render();
-      return true;
-    },
-  });
-}
-// 첫 시작과 전형 선택은 필수라 Esc로 닫지 못하게
-$('setup').addEventListener('cancel', (e) => { if (!state.started) e.preventDefault(); });
-$('pick').addEventListener('cancel', (e) => { if (L.needsStyle(state)) e.preventDefault(); });
-
+$('pickCancel').onclick = () => $('pick').close();
 /* ---------- 이벤트 ---------- */
 $('actions').addEventListener('click', (e) => {
   const b = e.target.closest('[data-act]'); if (!b) return;
-  if (L.needsStyle(state)) { openStylePick(); return; }
-  if (b.dataset.act === 'lesson' && !state.racket) { openRacketPick(); return; }
+  if (b.dataset.act === 'club') {
+    $('pickLead').textContent = '오늘 할 활동을 고르세요. 일정 한 칸을 사용해요.';
+    $('pickOpts').innerHTML = optionCards('choice', Object.entries(L.CLUB), null);
+    $('pick').showModal();
+    return;
+  }
   const res = L.doAction(state, b.dataset.act);
   if (!res.error) { react(actionFaces[b.dataset.act]); beep(520 + Math.random() * 300); }
   afterChange(res);
@@ -370,7 +316,6 @@ $('endDay').addEventListener('click', () => {
   else say(greet());
   hop();
   render();
-  if (L.needsStyle(state) && !$('modal').open) openStylePick();
 });
 
 function endingTitle(id) {
@@ -390,8 +335,8 @@ function showEnding() {
 }
 
 $('rankCard').addEventListener('click', () => {
-  if (!state.racket) {
-    modal(`<div class="m-ico">🏅</div><p class="m-title">받은 상장 ${state.awards}개</p><p class="m-text">매일 바뀌는 오늘의 도전에 성공하면 상장과 상금을 받아요. 탁구 레슨을 시작하면 세계 랭킹도 생겨요.</p>`, '닫기');
+  if (!L.clubVisits(state)) {
+    modal(`<div class="m-ico">🏅</div><p class="m-title">받은 상장 ${state.awards}개</p><p class="m-text">매일 바뀌는 오늘의 도전에 성공하면 상장과 상금을 받아요. 탁구장 활동을 시작하면 세계 랭킹도 생겨요.</p>`, '닫기');
     return;
   }
   const recent = state.log.filter((r) => r.points).slice(0, 5);
@@ -430,7 +375,6 @@ if (state) {
   L.newUnlocks(state);
   render();
   say(greet());
-  if (L.needsStyle(state)) openStylePick();
 } else {
   // 첫 선택 화면 뒤에 깔릴 미리보기 상태 (저장 안 함)
   state = L.newGame();

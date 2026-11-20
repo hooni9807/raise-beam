@@ -30,31 +30,21 @@ function seeded(seed) {
   s.cond = 50;
   L.doAction(s, 'rest', seeded(2));
   assert.equal(s.cond, 75);
-  assert.ok(L.doAction(s, 'lesson').error, '라켓 없이 탁구 레슨 불가');
-  assert.ok(L.chooseRacket(s, 'pen'));
-  assert.equal(L.chooseRacket(s, 'shake'), false, '라켓은 한 번만');
-  L.doAction(s, 'volunteer'); L.doAction(s, 'volunteer');
-  assert.ok(L.doAction(s, 'volunteer').error, '일정 0칸이면 행동 불가');
-  assert.ok(L.doMatch({ ...s, ap: 1 }).error, '도전은 2칸 필요');
-  assert.equal(L.chooseStyle(s, 'fast'), false, '22일 전에는 전형 선택 불가');
-  s.day = L.STYLE_DAY; s.ap = 3;
-  assert.ok(L.doAction(s, 'rest').error, '전형 고르기 전엔 행동 불가');
-  assert.ok(L.chooseStyle(s, 'fast'));
-  const noRacket = L.newGame({}, seeded(1)); noRacket.day = 30;
-  assert.equal(L.needsStyle(noRacket), false, '탁구 안 하면 전형 선택 없음');
+  assert.ok(!L.doAction(s, 'lesson').error);
+  assert.ok(!L.doAction(s, 'teach').error);
+  assert.ok(L.doAction(s, 'league').error);
+  assert.equal(L.clubVisits(s), 2);
   assert.equal(L.fmtNum(128000), '13만');
 }
 
 const TRAIN = { skill: 'lesson', stamina: 'run', smarts: 'study', courage: 'safety', grit: 'farm', manner: 'volunteer', craft: 'craft' };
 
 // 목표 직업의 요구 스탯 중 가장 모자란 걸 훈련하는 봇
-function play(seed, target, { country = 'kor', racket = 'shake', style = 'drive' } = {}) {
+function play(seed, target, { country = 'kor' } = {}) {
   const rng = seeded(seed);
   const s = L.newGame({ country }, rng);
   const career = L.CAREERS.find((c) => c.id === target);
-  if (career.racket) L.chooseRacket(s, racket);
   while (!s.ending) {
-    if (L.needsStyle(s)) L.chooseStyle(s, style);
     const req = career.req(s);
     const wantsAward = career.awards && s.awards < career.awards && L.matchChance(s) >= 0.4;
     if ((wantsAward || req[L.MATCHES[s.match].stat]) && s.stats[L.MATCHES[s.match].stat] >= L.matchNeed(s.day) - (wantsAward ? 6 : 0) && s.cond > 35) L.doMatch(s, rng);
@@ -64,8 +54,6 @@ function play(seed, target, { country = 'kor', racket = 'shake', style = 'drive'
       const key = s.cond < 35 ? 'rest'
         : s.money < 30000 || (career.money && s.money < career.money && s.day > 60) ? 'farm'
         : s.stats.manner < 30 ? 'volunteer'
-        // 국가대표 아래 단계 탁구 직업은, 조건을 채우면 탁구는 그만 키운다
-        : ['pro', 'coach', 'gym'].includes(target) && s.stats[gap] >= req[gap] ? (cnt ? cnt[0] : career.money && s.money < career.money ? 'farm' : 'volunteer')
         : cnt && s.stats[gap] >= req[gap] ? cnt[0]
         : TRAIN[gap];
       if (L.doAction(s, key, rng).error) L.doAction(s, 'rest', rng);
@@ -89,12 +77,37 @@ for (const c of L.CAREERS) {
 }
 console.table(rows);
 
-// 탁구: 라켓·전형 궁합
-const tt = (racket, style) => rateOf('tt', { racket, style }, 'champion', 40);
-const fastPen = tt('pen', 'fast'), fastShake = tt('shake', 'fast'), defShake = tt('shake', 'defense'), defCpen = tt('cpen', 'defense');
-console.log('세계선수권 우승률', { fastPen, fastShake, defShake, defCpen });
-assert.ok(fastPen > fastShake + 0.1, '전진속공은 펜홀더가 유리');
-assert.ok(defShake > defCpen + 0.1, '수비형은 셰이크가 유리');
+// 같은 84일 동안 서로 다른 탁구 일정을 반복한다.
+for (const [target, routine] of Object.entries({
+  cleaner: ['lesson'], coach: ['teach'], gym: ['lesson', 'teach', 'league'],
+  pro: ['lesson', 'league'],
+})) {
+  const rng = seeded(2);
+  const s = L.newGame({}, rng);
+  let turns = 0;
+  while (!s.ending) {
+    const done = target === 'cleaner' ? turns >= 6 : target === 'pro' && (s.counts.league || 0) >= 14;
+    let action = 'rest';
+    if (s.stats.manner < 22) action = 'volunteer';
+    else if (s.cond > 40 && !done) {
+      action = routine[turns % routine.length];
+      if (s.money < 20000 || (target === 'gym' && s.money < 350000)) action = 'farm';
+    }
+    // 선수는 어른이 될 때까지 레슨으로 실력을 보강한다.
+    if (done && target === 'pro' && s.stats.skill < 55 && s.cond > 40) action = s.money < 20000 ? 'farm' : 'lesson';
+    assert.ok(!L.doAction(s, action, rng).error);
+    if (L.CLUB[action]) turns++;
+    if (!s.ap) L.endDay(s, rng);
+  }
+  assert.equal(s.ending, target);
+}
+{
+  const s = L.newGame();
+  s.stats.manner = 60; s.stats.skill = 85; s.points = 160000;
+  s.counts = { lesson: 12, league: 18 };
+  assert.equal(L.decideEnding(s, () => 0), 'champion');
+  assert.equal(L.decideEnding(s, () => 1), 'runnerup');
+}
 
 // 배드 엔딩
 {

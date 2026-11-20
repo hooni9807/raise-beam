@@ -1,6 +1,5 @@
 // 게임 규칙만 담은 순수 로직. DOM 없음 → node test.mjs 로 검증 가능.
 // 84일 동안 희범이를 키우면 스탯에 맞는 직업 엔딩(또는 배드 엔딩)이 나온다.
-// 탁구 루트 분기: 시작할 때 국가, 첫 탁구 레슨 때 라켓, 22일째 전형.
 
 // 캐릭터 이름은 임희범으로 고정
 export const SON = { name: '임희범', nick: '희범', short: '범' };
@@ -27,51 +26,13 @@ export const COUNTRIES = {
   swe: { name: '스웨덴', flag: '🇸🇪', bonus: { manner: 6, courage: 3 }, need: 80000, desc: '다정한 복지 국가. 인성과 용기를 갖고 시작하고, 탁구 대표 기준이 낮아요.' },
 };
 
-export const RACKETS = {
-  shake: { name: '셰이크핸드', mult: {}, edge: 0.03, desc: '악수하듯 잡는 그립. 양면이 안정적이라 탁구 경기 승률 +3%.' },
-  pen: { name: '펜홀더', mult: { skill: 1.1, stamina: 1.1 }, edge: 0, desc: '펜처럼 잡고 한 면만 써요. 빠른 풋워크로 탁구와 체력 훈련 효율이 좋아요.' },
-  cpen: { name: '중펜', mult: { skill: 1.2 }, edge: 0, desc: '중국식 펜홀더. 뒷면 타법까지 써서 탁구 훈련 효율이 가장 좋아요.' },
-};
-
-export const STYLES = {
-  fast: {
-    name: '전진속공형', icon: '⚡', mult: { skill: 1.1, courage: 1.2 }, fits: ['pen'],
-    req: { skill: 80, courage: 60, stamina: 50 },
-    desc: '탁구대에 바짝 붙어 빠른 박자로 끝내요. 펜홀더와 궁합이 좋아요.',
-    win: '탁구대에 바짝 붙어 번개 같은 속공으로 결승을 끝냈어요.',
-  },
-  drive: {
-    name: '드라이브형', icon: '🌀', mult: { skill: 1.2, stamina: 1.1 }, fits: ['shake', 'cpen'],
-    req: { skill: 85, stamina: 65 },
-    desc: '강한 회전의 드라이브로 밀어붙여요. 셰이크핸드, 중펜과 궁합이 좋아요.',
-    win: '중진에서 쏟아낸 파워 드라이브가 결승 상대의 라켓을 튕겨 냈어요.',
-  },
-  defense: {
-    name: '수비형', icon: '🛡️', mult: { grit: 1.3, stamina: 1.1 }, fits: ['shake'],
-    req: { skill: 70, grit: 80, stamina: 60 },
-    desc: '멀리서 커트로 받아 내며 상대 실수를 기다려요. 셰이크핸드와 궁합이 좋아요.',
-    win: '끝없는 커트로 받아 내다 상대가 먼저 무너졌어요. 철벽 수비의 승리예요.',
-  },
-  allround: {
-    name: '올라운드형', icon: '⭐', mult: {}, fits: ['shake', 'pen', 'cpen'], half: true, finalEdge: -0.12,
-    req: { skill: 80, smarts: 60, grit: 60 },
-    desc: '공격과 수비를 상황 따라 바꿔요. 어떤 라켓과도 무난하지만, 결정타가 없어 결승에서는 조금 불리해요.',
-    win: '공격과 수비를 자유자재로 바꾸며 결승 상대를 흔들었어요.',
-  },
-};
-const DEFAULT_TT_REQ = { skill: 85, stamina: 60 };
-export const reqOf = (s) => (s.style ? STYLES[s.style].req : DEFAULT_TT_REQ);
-// 라켓과 전형 궁합: 1 최고, 0.5 무난(올라운드), 0 보통
-export const fitLevel = (s, style = s.style) =>
-  !style || !s.racket || !STYLES[style].fits.includes(s.racket) ? 0 : STYLES[style].half ? 0.5 : 1;
-
 export const STAGES = [
   { id: 'baby', name: '애기범', from: 1, age: [1, 6], mult: 1 },
   { id: 'kid', name: '꼬마범', from: 22, age: [7, 12], mult: 3 },
   { id: 'teen', name: '사춘기범', from: 43, age: [13, 18], mult: 6 },
   { id: 'adult', name: '어른범', from: 64, age: [19, 24], mult: 12 },
 ];
-export const STYLE_DAY = STAGES[1].from;
+
 export const stageIndex = (day) => STAGES.findLastIndex((s) => day >= s.from);
 export const stageOf = (day) => STAGES[stageIndex(day)];
 export function ageOf(day) {
@@ -85,9 +46,15 @@ export const dateLabel = (day) => `${Math.ceil(day / 7)}주차 ${WEEKDAYS[(day -
 export const STAT_CAPS = [30, 55, 80, 100];
 export const statCap = (day) => STAT_CAPS[stageIndex(Math.min(day, DAYS))];
 
+export const CLUB = {
+  lesson: { name: '레슨 받기', desc: '레슨비 2만원 · 탁구와 체력 훈련', icon: '🏓', cost: 20000, cond: -12, gain: { skill: 3, stamina: 1 }, line: '오늘 서브 완전 잘 들어갔어!' },
+  teach: { name: '다른 사람 가르치기', icon: '📋', cond: -8, gain: { manner: 2, skill: 1 }, desc: '회원 지도 · 지도비 1만원', pay: 10000, line: '처음 온 회원이 드디어 서브에 성공했어!' },
+  league: { name: '리그전 출전', icon: '🏓', cond: -16, gain: { stamina: 2, skill: 1 }, desc: '한 경기 출전 · 결과에 따라 랭킹 포인트 획득' },
+};
+export const clubVisits = s => Object.keys(CLUB).reduce((n, k) => n + (s.counts[k] || 0), 0);
 export const ACTIONS = {
   meal: { name: '밥 먹이기', icon: '🍚', cost: 8000, cond: 15, gain: { stamina: 2 }, line: '냠냠, 든든해!' },
-  lesson: { name: '탁구 레슨', icon: '🏓', cost: 20000, cond: -12, gain: { skill: 3, stamina: 1 }, line: '오늘 서브 완전 잘 들어갔어!' },
+
   study: { name: '공부', icon: '📚', cost: 10000, cond: -10, gain: { smarts: 3 }, line: '오늘 배운 거 다 기억해!' },
   run: { name: '운동', icon: '🏃', cond: -10, gain: { stamina: 3 }, line: '땀 흘리니까 개운해' },
   safety: { name: '고시 준비', icon: '📝', cond: -10, gain: { courage: 3 }, line: '어려운 기출문제도 끝까지 풀었어!' },
@@ -112,15 +79,11 @@ export const matchNeed = (day) => 12 + stageIndex(day) * 18;
 export function matchChance(s) {
   const mt = MATCHES[s.match];
   let c = 0.35 + (s.stats[mt.stat] - matchNeed(s.day)) / 40;
-  if (mt.points && s.racket) {
-    c += RACKETS[s.racket].edge + 0.08 * fitLevel(s);
-    if (s.style && (STYLES[s.style].mult.skill || 1) > 1) c += 0.05;
-  }
   return Math.max(0.1, Math.min(0.95, c));
 }
 
 const EVENTS = [
-  { face: 'surprised', title: '스카우트 제의', text: '실업팀 감독님이 탁구 치는 모습을 눈여겨보고 가셨어요.', apply: (st, m) => { if (st.racket) st.points += 400 * m; else st.stats.skill += 2; } },
+  { face: 'surprised', title: '스카우트 제의', text: '실업팀 감독님이 탁구 치는 모습을 눈여겨보고 가셨어요.', apply: (st, m) => { if (clubVisits(st)) st.points += 400 * m; else st.stats.skill += 2; } },
   { face: 'sick', title: '감기에 걸렸어요', text: '콧물이 줄줄. 오늘은 푹 쉬게 해 주세요.', apply: (st) => (st.cond -= 20) },
   { face: 'surprised', title: '할머니 용돈', text: '할머니가 몰래 봉투를 쥐여 주셨어요.', apply: (st) => (st.money += 20000) },
   { face: 'surprised', title: '송아지가 태어났어요', text: '할아버지 농장에서 송아지 출산을 밤새 도왔어요.', apply: (st) => { st.stats.grit += 3; st.cond -= 8; } },
@@ -136,11 +99,6 @@ const EVENTS = [
 // 프린세스 메이커처럼 스탯뿐 아니라 "무엇을 몇 번 했는지"도 엔딩을 가른다.
 const t = (text) => () => text;
 export const CAREERS = [
-  // 탁구 루트 (라켓을 골라야 열림)
-  { id: 'tt', group: '탁구', name: '탁구 국가대표', icon: '🏓', racket: true, tt: true, req: (s) => reqOf(s) },
-  { id: 'pro', group: '탁구', name: '실업팀 탁구선수', icon: '🏸', racket: true, req: () => ({ skill: 65, stamina: 50 }), text: t('실업팀에 입단해 매주 리그 경기를 뛰어요. 동네 꼬마들의 사인 요청이 끊이지 않아요.') },
-  { id: 'coach', group: '탁구', name: '탁구 코치', icon: '📣', racket: true, req: () => ({ skill: 55, manner: 60, smarts: 45 }), counts: { volunteer: 8 }, text: t('전문스포츠지도사 자격을 따서 중학교 탁구부 코치가 됐어요. 제자가 소년체전 금메달을 땄어요.') },
-  { id: 'gym', group: '탁구', name: '탁구장 관장', icon: '🏟️', racket: true, req: () => ({ skill: 50, grit: 50 }), money: 500000, text: t('모은 돈으로 동네에 탁구장을 차렸어요. 저녁마다 동호회 랠리 소리가 끊이지 않아요.') },
   // 몸 쓰는 일
   { id: 'trainer', group: '운동', name: '헬스 트레이너', icon: '💪', req: () => ({ stamina: 85, manner: 40 }), text: t('체육관을 열었어요. 회원들이 줄을 서요.') },
   { id: 'firefighter', group: '안전', name: '소방관', icon: '🚒', req: () => ({ courage: 70, stamina: 65, manner: 50 }), text: t('불길 속에서 아이를 구해 나왔어요. 동네의 영웅이 됐어요.') },
@@ -161,7 +119,11 @@ export const CAREERS = [
 ];
 
 export const ENDINGS = {
-  champion: { title: '세계탁구선수권 우승', icon: '🏆', group: '탁구', text: (s) => `${STYLES[s.style || 'allround'].win} ${COUNTRIES[s.country].flag} 국기를 들고 시상대 맨 위에 섰어요.` },
+  pro: { title: '실업팀 탁구선수', icon: '🏓', group: '탁구', text: t('레슨에서 익힌 기술을 리그전에서 보여 주고 실업팀에 입단했어요.') },
+  coach: { title: '탁구 코치', icon: '📋', group: '탁구', text: t('처음 서브도 못 넣던 회원이 첫 승리를 따냈어요. 가장 먼저 희범이에게 달려왔어요.') },
+  gym: { title: '탁구장 관장', icon: '🏟️', group: '탁구', text: t('배우고 가르치고 리그를 뛰며 모은 돈으로 동네 탁구장을 열었어요.') },
+  cleaner: { title: '탁구장 청소부', icon: '🧹', group: '탁구', text: t('아침 첫 경기가 시작되기 전, 탁구대를 닦고 흩어진 공을 모아요. 회원들이 가장 먼저 인사하는 사람이 됐어요.') },
+  champion: { title: '세계탁구선수권 우승', icon: '🏆', group: '탁구', text: (s) => `리그에서 갈고닦은 서브로 세계선수권 결승을 끝냈어요. ${COUNTRIES[s.country].flag} 국기를 들고 시상대 맨 위에 섰어요.` },
   runnerup: { title: '세계탁구선수권 준우승', icon: '🥈', group: '탁구', text: (s) => `결승 마지막 세트 듀스 끝에 아쉽게 졌어요. 그래도 ${COUNTRIES[s.country].flag} 국가대표 은메달이에요.` },
   ...Object.fromEntries(CAREERS.filter((c) => !c.tt).map((c) => [c.id, { title: c.name, icon: c.icon, group: c.group, text: c.text }])),
   office: { title: '회사원', icon: '💼', group: '평범', text: t('특별한 꿈은 못 찾았지만 성실한 회사원이 됐어요. 주말마다 집에 와서 밥 먹는 게 제일 좋대요.') },
@@ -177,26 +139,9 @@ const meets = (s, req) => Object.entries(req).every(([k, v]) => s.stats[k] >= v)
 const countsOk = (s, c) => Object.entries(c.counts || {}).every(([k, v]) => (s.counts[k] || 0) >= v);
 export function careerOk(s, c) {
   if (!meets(s, c.req(s)) || !countsOk(s, c)) return false;
-  if (c.racket && !s.racket) return false;
-  if (c.tt && s.points < COUNTRIES[s.country].need) return false;
   if (c.money && s.money < c.money) return false;
   if (c.awards && s.awards < c.awards) return false;
   return true;
-}
-// 진행률: 요구 스탯(과 포인트, 돈)을 얼마나 채웠는지
-export function careerProgress(s, c) {
-  const parts = Object.entries(c.req(s)).map(([k, v]) => Math.min(1, s.stats[k] / v));
-  if (c.tt) parts.push(Math.min(1, s.points / COUNTRIES[s.country].need));
-  if (c.money) parts.push(Math.min(1, s.money / c.money));
-  if (c.awards) parts.push(Math.min(1, s.awards / c.awards));
-  for (const [k, v] of Object.entries(c.counts || {})) parts.push(Math.min(1, (s.counts[k] || 0) / v));
-  if (c.racket && !s.racket) parts.push(0);
-  return parts.reduce((a, b) => a + b, 0) / parts.length;
-}
-// 요구치를 얼마나 넘겼는지 (0~1)
-function surplus(s, req) {
-  const e = Object.entries(req);
-  return e.map(([k, v]) => Math.max(0, s.stats[k] - v) / (100 - v)).reduce((a, b) => a + b, 0) / e.length;
 }
 export const totalStats = (s) => Object.values(s.stats).reduce((a, b) => a + b, 0);
 export const BURNOUT_LIMIT = 8;
@@ -211,22 +156,24 @@ export function likeness(s, c) {
   return dot / Math.sqrt(vv * rr || 1);
 }
 
-export function finalChance(s) {
-  const c = 0.2 + 0.45 * surplus(s, reqOf(s)) + 0.2 * fitLevel(s) + (s.racket ? RACKETS[s.racket].edge : 0) + ((s.style && STYLES[s.style].finalEdge) || 0);
-  return Math.max(0.05, Math.min(0.95, c));
-}
-
 export function decideEnding(s, rng = Math.random) {
   if (s.stats.manner <= 15) return 'runaway';
   if (s.burnout >= BURNOUT_LIMIT) return 'burnout';
+  const { lesson = 0, teach = 0, league = 0 } = s.counts;
+  const visits = lesson + teach + league;
+  if (teach >= 8 && lesson >= 8 && league >= 8 && s.money >= 300000) return 'gym';
+  if (teach >= 12 && teach >= league && teach >= lesson) return 'coach';
+  if (league >= 8 && lesson >= 6 && s.stats.skill >= 55) {
+    if (league >= 15 && s.stats.skill >= 80 && s.points >= COUNTRIES[s.country].need) {
+      return rng() < Math.min(0.9, 0.4 + s.ttWins * 0.025) ? 'champion' : 'runnerup';
+    }
+    return 'pro';
+  }
   const ok = CAREERS.filter((c) => careerOk(s, c));
   if (ok.length) {
-    // 탁구 국가대표 자격이면 결승전. 아니면 아이의 스탯 모양이 직업의 요구 스탯 모양과
-    // 가장 닮은 직업 (코사인 유사도). 지능이 인성보다 높으면 교수, 반대면 선생님 같은 식.
-    const best = ok.find((c) => c.tt) || ok.sort((a, b) => likeness(s, b) - likeness(s, a))[0];
-    if (best.tt) return rng() < finalChance(s) ? 'champion' : 'runnerup';
-    return best.id;
+    return ok.sort((a, b) => likeness(s, b) - likeness(s, a))[0].id;
   }
+  if (visits >= 6) return 'cleaner';
   if (s.money < 15000) return 'homeless';
   return totalStats(s) < 250 ? 'neet' : 'office';
 }
@@ -251,7 +198,7 @@ function tidy(s) {
 
 export function newGame({ country = 'kor', gender = 'male' } = {}, rng = Math.random) {
   const s = {
-    name: SON.name, gender, country, racket: null, style: null,
+    name: SON.name, gender, country,
     day: 1, ap: AP_PER_DAY, money: 60000, points: 0, cond: 80, burnout: 0, awards: 0, ttWins: 0, counts: {},
     stats: Object.fromEntries(STATS.map((t) => [t.key, 8 + Math.floor(rng() * 5)])),
     match: Math.floor(rng() * MATCHES.length), matchDone: false,
@@ -264,28 +211,12 @@ export function newGame({ country = 'kor', gender = 'male' } = {}, rng = Math.ra
   return s;
 }
 
-export function chooseRacket(s, racket) {
-  if (s.racket || !RACKETS[racket]) return false;
-  s.racket = racket;
-  return true;
-}
-// 탁구를 시작한 아이만, 22일째 이후 한 번
-export function chooseStyle(s, style) {
-  if (!needsStyle(s) || !STYLES[style]) return false;
-  s.style = style;
-  return true;
-}
-export const needsStyle = (s) => !!s.racket && !s.style && !s.ending && s.day >= STYLE_DAY;
-
 const condFactor = (c) => (c < 30 ? 0.5 : c >= 70 ? 1.2 : 1);
-const trainMult = (s, k) => ((s.racket && RACKETS[s.racket].mult[k]) || 1) * ((s.style && STYLES[s.style].mult[k]) || 1);
 
 // 성공하면 { line, deltas }, 못 하면 { error } 를 돌려준다. state 를 직접 바꾼다.
 export function doAction(s, key, rng = Math.random) {
-  const a = ACTIONS[key];
+  const a = ACTIONS[key] || CLUB[key];
   if (s.ending) return { error: '이미 엔딩을 봤어요.' };
-  if (needsStyle(s)) return { error: '먼저 탁구 전형을 골라 주세요.' };
-  if (key === 'lesson' && !s.racket) return { error: '먼저 라켓을 골라 주세요.' };
   if (s.ap < 1) return { error: '오늘 일정이 꽉 찼어요. 하루를 마쳐 주세요.' };
   if (a.cost && s.money < a.cost) return { error: `돈이 ${(a.cost - s.money).toLocaleString()}원 부족해요.` };
   if (s.cond <= 10 && a.cond < 0) return { error: '너무 지쳤어요. 밥을 먹이거나 쉬게 해 주세요.' };
@@ -293,11 +224,21 @@ export function doAction(s, key, rng = Math.random) {
   const f = condFactor(s.cond);
   const deltas = {};
   for (const [k, v] of Object.entries(a.gain)) {
-    const g = Math.max(1, Math.round((v + rng()) * f * trainMult(s, k) * (1 - s.stats[k] / 150)));
+    const g = Math.max(1, Math.round((v + rng()) * f * (1 - s.stats[k] / 150)));
     s.stats[k] += g;
     deltas[statName(k)] = g;
   }
   if (a.cost) { s.money -= a.cost; deltas['돈'] = -a.cost; }
+  let line = a.line;
+  if (a.pay) { s.money += a.pay; deltas['돈'] = a.pay; }
+  if (key === 'league') {
+    const win = rng() < Math.min(0.9, 0.25 + s.stats.skill / 140);
+    const points = (win ? 900 : 150) * STAGES[stageIndex(s.day)].mult;
+    s.points += points;
+    if (win) s.ttWins++;
+    deltas['포인트'] = points;
+    line = win ? '리그에서 이겼어! 마지막 서브가 통했어.' : '리그에서 졌어. 다음엔 리시브를 바꿔 볼래.';
+  }
   if (a.earn) {
     const pay = Math.round((15000 + s.stats.grit * 400) * (1 + stageIndex(s.day) * 0.5));
     s.money += pay; deltas['돈'] = pay;
@@ -307,12 +248,11 @@ export function doAction(s, key, rng = Math.random) {
   s.counts[key] = (s.counts[key] || 0) + 1;
   s.today.push(a.icon);
   tidy(s);
-  return { line: f < 1 ? '조금 힘들어…' : a.line, deltas };
+  return { line: f < 1 && key !== 'league' ? '조금 힘들어…' : line, deltas };
 }
 
 export function doMatch(s, rng = Math.random) {
   if (s.ending) return { error: '이미 엔딩을 봤어요.' };
-  if (needsStyle(s)) return { error: '먼저 탁구 전형을 골라 주세요.' };
   if (s.matchDone) return { error: '오늘 도전은 이미 끝났어요.' };
   if (s.ap < 2) return { error: '도전은 일정 2칸이 필요해요.' };
   if (s.cond <= 20) return { error: '컨디션이 너무 낮아서 나갈 수 없어요.' };
@@ -336,7 +276,7 @@ export function endDay(s, rng = Math.random) {
   if (s.ending) return {};
   const m = STAGES[stageIndex(s.day)].mult;
   const before = s.points;
-  if (s.racket) s.points += s.points * 0.02 + s.stats.skill * m * 0.8;
+  if (clubVisits(s)) s.points += s.points * 0.02 + s.stats.skill * m * 0.8;
   const tired = s.cond <= 15;
   if (tired) { s.burnout += 1; s.stats.manner -= 3; } // 너무 지친 날은 짜증이 늘어 인성이 깎인다
   s.log.unshift({ day: s.day, acts: s.today.join(' '), points: Math.round(s.points - before), tired });
@@ -364,9 +304,6 @@ export function newUnlocks(s) {
 }
 
 export const level = (s) => 1 + Math.floor(totalStats(s) / 40);
-// 지금 스탯으로 가장 가까운 직업 n개
-export const topCareers = (s, n = 3) =>
-  CAREERS.map((c) => ({ c, p: careerProgress(s, c) })).sort((a, b) => b.p - a.p).slice(0, n);
 // 랭킹 포인트 → 세계 랭킹 (0점 999위, 1만 약 200위, 10만 약 8위). 1위는 우승해야 차지한다.
 export const worldRank = (s) =>
   s.ending === 'champion' ? 1 : Math.max(2, Math.round(999 / (1 + (s.points / 4000) ** 1.5)));
