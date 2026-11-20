@@ -64,6 +64,11 @@ export const ACTIONS = {
   rest: { name: '쉬기', icon: '🛋️', cond: 25, gain: {}, line: '잠깐 낮잠 잘게…' },
 };
 
+export const FITNESS = {
+  run: { ...ACTIONS.run, name: '체력 단련', desc: '스스로 운동하며 체력을 길러요.' },
+  instruct: { name: '회원 운동 지도', icon: '💪', desc: '자세를 알려 주며 체력과 인성을 길러요.', cond: -8, gain: { stamina: 2, manner: 2 }, line: '함께 연습하니 자세가 좋아졌어!' },
+};
+
 // 매일 바뀌는 오늘의 도전. 탁구 대회는 랭킹 포인트도 준다.
 export const MATCHES = [
   { name: '동네 탁구 대회', icon: '🏓', stat: 'skill', points: 800, prize: 30000 },
@@ -172,6 +177,7 @@ export function decideEnding(s, rng = Math.random) {
     return 'pro';
   }
   const ok = CAREERS.filter((c) => careerOk(s, c));
+  if (s.counts.instruct >= 12 && ok.some(c => c.id === 'trainer')) return 'trainer';
   if (ok.length) {
     return ok.sort((a, b) => likeness(s, b) - likeness(s, a))[0].id;
   }
@@ -268,7 +274,7 @@ export function reactionFace(s, occasion, turn) {
 
 // 성공하면 행동 결과와 그에 맞는 표정을 돌려준다.
 export function doAction(s, key, rng = Math.random) {
-  const a = ACTIONS[key] || CLUB[key];
+  const a = ACTIONS[key] || CLUB[key] || FITNESS[key];
   if (s.ending) return { error: '이미 엔딩을 봤어요.' };
   if (s.ap < 1) return { error: '오늘 일정이 꽉 찼어요. 하루를 마쳐 주세요.' };
   if (a.cost && s.money < a.cost) return { error: `돈이 ${(a.cost - s.money).toLocaleString()}원 부족해요.` };
@@ -283,7 +289,7 @@ export function doAction(s, key, rng = Math.random) {
   }
   if (a.cost) { s.money -= a.cost; deltas['돈'] = -a.cost; }
   const turn = (s.counts[key] || 0) + 1;
-  let occasion = key;
+  let occasion = key === 'instruct' ? 'praised' : key;
   let line = a.line;
   if (a.pay) { s.money += a.pay; deltas['돈'] = a.pay; }
   if (key === 'league') {

@@ -202,3 +202,14 @@ for (const [target, routine] of Object.entries({
 }
 console.log('엔딩 종류', L.ENDING_IDS.length);
 console.log('ok');
+
+{
+  const s = L.newGame();
+  s.day = L.DAYS;
+  Object.assign(s.stats, { stamina: 85, manner: 45, courage: 85 });
+  s.counts.instruct = 11;
+  assert.ok(!L.doAction(s, 'instruct').error);
+  assert.equal(s.counts.instruct, 12);
+  assert.equal(L.clubVisits(s), 0);
+  assert.equal(L.decideEnding(s), 'trainer');
+}

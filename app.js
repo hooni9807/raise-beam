@@ -1,6 +1,6 @@
-import * as L from './logic.js?v=league-trophy';
+import * as L from './logic.js?v=fitness-route';
 import { playPrologue } from './prologue.js?v=birth1996';
-import { openTutorial } from './tutorial.js?v=league-trophy';
+import { openTutorial } from './tutorial.js?v=fitness-route';
 
 const KEY = 'raise-beam-v3';
 const DEX_KEY = 'raise-beam-endings';
@@ -139,7 +139,7 @@ function render() {
   $('actions').innerHTML = Object.entries({ club: { name: "탁구장 가기", icon: "🏓" }, ...L.ACTIONS }).map(([k, a]) => `
     <button class="act" data-act="${k}" ${s.ap < 1 || s.ending ? 'disabled' : ''}>
       <span aria-hidden="true">${a.icon}</span>${a.name}
-      <small>${k === 'club' ? '활동 선택' : a.cost ? `-${a.cost / 10000}만원` : a.earn ? '알바비 +' : a.cond > 0 ? `컨디션 +${a.cond}` : `컨디션 ${a.cond}`}</small>
+      <small>${k === 'club' || k === 'run' ? '활동 선택' : a.cost ? `-${a.cost / 10000}만원` : a.earn ? '알바비 +' : a.cond > 0 ? `컨디션 +${a.cond}` : `컨디션 ${a.cond}`}</small>
     </button>`).join('');
 
   $('slots').innerHTML = [0, 1, 2].map((i) => `<li class="${s.today[i] ? 'done' : ''}">${s.today[i] || ''}</li>`).join('');
@@ -312,7 +312,7 @@ $('setup').addEventListener('cancel', e => { if (!state.started) e.preventDefaul
 $('pickForm').addEventListener('submit', e => {
   e.preventDefault();
   const key = new FormData(e.target).get('choice');
-  if (!L.CLUB[key]) return;
+  if (!L.CLUB[key] && !L.FITNESS[key]) return;
   const result = L.doAction(state, key);
   if (result.error) { $('pickLead').textContent = result.error; return; }
   $('pick').close();
@@ -324,9 +324,12 @@ $('pickCancel').onclick = () => $('pick').close();
 /* ---------- 이벤트 ---------- */
 $('actions').addEventListener('click', (e) => {
   const b = e.target.closest('[data-act]'); if (!b) return;
-  if (b.dataset.act === 'club') {
+  if (b.dataset.act === 'club' || b.dataset.act === 'run') {
+    const fitness = b.dataset.act === 'run';
+    $('pickTitle').textContent = fitness ? '어떤 운동을 할까요?' : '탁구장에서 무엇을 할까요?';
+    $('pickIco').textContent = fitness ? '💪' : '🏓';
     $('pickLead').textContent = '오늘 할 활동을 고르세요. 일정 한 칸을 사용해요.';
-    $('pickOpts').innerHTML = optionCards('choice', Object.entries(L.CLUB), null);
+    $('pickOpts').innerHTML = optionCards('choice', Object.entries(fitness ? L.FITNESS : L.CLUB), null);
     $('pick').showModal();
     return;
   }
