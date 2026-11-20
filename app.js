@@ -1,5 +1,6 @@
 import * as L from './logic.js?v=life-letters';
 import { playPrologue } from './prologue.js?v=birth1996';
+import { openTutorial } from './tutorial.js';
 
 const KEY = 'raise-beam-v3';
 const DEX_KEY = 'raise-beam-endings';
@@ -304,6 +305,7 @@ $('setupForm').addEventListener('submit', (e) => {
   go('home'); render(); hop();
   say('응애! 잘 부탁해!');
   jingle([523, 659, 784]);
+  openTutorial(state.gender);
 });
 
 $('setup').addEventListener('cancel', e => { if (!state.started) e.preventDefault(); });
@@ -420,6 +422,7 @@ $('settingsForm').addEventListener('submit', (e) => {
   state.sound = e.target.sound.checked;
   render(); toast('저장했어요');
 });
+$('tutorialReplay').onclick = () => openTutorial(state.gender, true);
 $('reset').addEventListener('click', () => {
   if (!confirm('지금까지 키운 기록이 모두 사라져요. 처음부터 다시 키울까요?')) return;
   $('prologueStartLabel').textContent = '게임 시작';
@@ -442,6 +445,7 @@ playPrologue(() => {
     L.newUnlocks(state);
     render();
     say(greet());
+    openTutorial(state.gender);
     return;
   }
   state = L.newGame();

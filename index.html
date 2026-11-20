@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=life-letters">
+  <link rel="stylesheet" href="style.css?v=practice-notebook">
 </head>
 <body>
   <div class="phone" hidden>
@@ -92,6 +92,7 @@
           <label class="row"><input type="checkbox" name="sound"> 효과음 켜기</label>
           <button class="btn">저장하기</button>
         </form>
+        <button type="button" class="btn ghost" id="tutorialReplay">게임 방법 다시 보기</button>
         <button class="btn danger" id="reset">처음부터 다시 키우기</button>
       </section>
     </main>
@@ -103,6 +104,29 @@
       <button data-go="settings"><span>⚙️</span>설정</button>
     </nav>
   </div>
+
+  <dialog id="tutorial" aria-labelledby="tutorialTitle" aria-describedby="tutorialText">
+    <header class="guide-bar">
+      <span>희범이의 연습장</span>
+      <button type="button" id="tutorialSkip">건너뛰기</button>
+    </header>
+    <div class="guide-page">
+      <div class="guide-intro">
+        <p id="tutorialProgress"></p>
+        <h2 id="tutorialTitle" tabindex="-1"></h2>
+        <p id="tutorialText"></p>
+      </div>
+      <section class="guide-sheet" aria-label="연습 중인 희범이의 상태">
+        <div class="guide-profile">
+          <img id="tutorialPortrait" alt="" width="96" height="96">
+          <div><strong id="tutorialDay"></strong><p id="tutorialCondition"></p></div>
+        </div>
+        <ol id="tutorialSlots" aria-label="연습 일정"></ol>
+      </section>
+      <div id="tutorialChoices" role="group" aria-label="연습할 활동 선택" hidden></div>
+      <button class="btn" type="button" id="tutorialNext"></button>
+    </div>
+  </dialog>
 
   <dialog id="prologue" aria-label="임희범 키우기 프롤로그" tabindex="-1">
     <div class="film">
@@ -187,6 +211,6 @@
   </dialog>
   <p class="toast" id="toast" role="status" aria-live="polite"></p>
 
-  <script type="module" src="app.js?v=birth1996"></script>
+  <script type="module" src="app.js?v=practice-notebook"></script>
 </body>
 </html>

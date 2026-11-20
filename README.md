@@ -25,6 +25,19 @@
 
 </details>
 
+### 희범이의 연습장
+
+처음 홈에 들어오면 연습용 공책이 열립니다. 공부·운동·쉬기 중 하나를 골라 일정 한 칸을 채우고, 희범이의 컨디션과 지갑이 어떻게 달라지는지 확인하세요. **하루 마치기 연습**을 누르면 다음 날의 빈 세 칸이 열립니다. 연습을 끝내면 실제 게임은 들어오기 전의 날짜와 상태에서 이어집니다.
+
+**건너뛰기**로 언제든 닫을 수 있습니다. 한 번 마치거나 건너뛴 브라우저에서는 **설정 → 게임 방법 다시 보기**로 다시 열 수 있습니다.
+
+<details>
+<summary>튜토리얼 설계 참고 자료</summary>
+
+첫날 반복할 행동을 짧은 단계로 나누고, 결과를 확인한 뒤 다음 행동을 직접 선택하도록 구성했습니다. [Apple의 게임 온보딩 가이드](https://developer.apple.com/app-store/onboarding-for-games/) · [Xbox의 대화형 튜토리얼 지침](https://learn.microsoft.com/en-us/gaming/accessibility/xbox-accessibility-guidelines/109) · [Game Maker’s Toolkit 영상의 튜토리얼 나누기 장](https://www.youtube.com/watch?v=-GV814cWiAw&t=83s)
+
+</details>
+
 ## 하루 일정
 
 일반 행동은 한 번에 한 칸을 씁니다. **오늘의 도전**에 나갈 날에는 두 칸을 남겨 두세요. 예를 들어 첫 칸에 밥을 먹이면 컨디션을 15 회복하고 남은 두 칸으로 대회에 참가할 수 있습니다.

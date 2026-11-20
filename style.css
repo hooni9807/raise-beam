@@ -395,3 +395,140 @@ legend { font-family: var(--display); font-size: 16px; margin-bottom: 6px; }
 .life-story h3 { margin: 0 0 6px; }
 #lifeCollection summary { padding: 10px 4px; cursor: pointer; }
 #lifeInvite[hidden], #nationalTeam[hidden], #lifeShelf[hidden] { display: none; }
+
+/* 프롤로그의 공책을 펼친 첫날 연습장 */
+#tutorial {
+  --guide-paper: #fffcf3;
+  --guide-sheet: #f2efe0;
+  --guide-rule: #b7c5b6;
+  --guide-ink: #203d36;
+  --guide-muted: #4b6159;
+  --guide-cover: #23584d;
+  --guide-light: #fffcf3;
+  width: min(440px, calc(100% - 24px));
+  max-height: calc(100dvh - 24px);
+  padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  text-align: left;
+  color: var(--guide-ink);
+  background: var(--guide-paper);
+  border: 2px solid var(--guide-cover);
+  border-radius: 8px 19px 19px 8px;
+  box-shadow: 0 3px 0 var(--guide-rule), 0 6px 0 var(--guide-cover), 0 16px 42px #0c242c44;
+}
+#tutorial::backdrop { background: #14291fc2; }
+.guide-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px clamp(16px, 5vw, 26px);
+  gap: 10px;
+  background: var(--guide-cover);
+  color: var(--guide-light);
+}
+.guide-bar > span { font: 18px var(--display); }
+#tutorialSkip {
+  min-height: 44px;
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.guide-page {
+  display: grid;
+  gap: 16px;
+  padding: clamp(16px, 5vw, 26px);
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+.guide-intro { display: grid; gap: 5px; }
+#tutorialProgress { font: 14px var(--display); color: var(--guide-muted); }
+#tutorialTitle { font-size: clamp(24px, 6vw, 32px); line-height: 1.15; }
+#tutorialTitle:focus { outline: none; }
+#tutorialText { font-size: 15px; line-height: 1.55; }
+.guide-sheet {
+  padding: 12px;
+  border: 1px solid var(--guide-rule);
+  border-radius: 4px;
+  background-color: var(--guide-sheet);
+  background-image: linear-gradient(transparent 23px, color-mix(in srgb, var(--guide-rule) 40%, transparent) 24px);
+  background-size: 100% 24px;
+}
+.guide-profile { display: flex; gap: 16px; align-items: center; }
+#tutorialPortrait {
+  display: block;
+  width: clamp(68px, 21vw, 90px);
+  height: auto;
+  aspect-ratio: 1;
+  object-fit: contain;
+  border-radius: 5px;
+  background: var(--guide-paper);
+}
+#tutorialDay { font: 21px var(--display); }
+#tutorialCondition { margin-top: 4px; font-size: 14px; }
+#tutorialSlots, #tutorialChoices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+}
+#tutorialSlots { list-style: none; padding: 0; margin: 12px 0 0; }
+#tutorialSlots li {
+  display: grid;
+  place-content: center;
+  min-height: 38px;
+  padding: 4px;
+  border: 1px dashed var(--guide-muted);
+  border-radius: 4px;
+  background: var(--guide-paper);
+  color: var(--guide-muted);
+  text-align: center;
+  font-size: 14px;
+}
+#tutorialSlots .done, #tutorialSlots [data-filled="true"] {
+  background: var(--guide-cover);
+  color: var(--guide-light);
+  border-style: solid;
+}
+#tutorialChoices button {
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 2px;
+  min-height: 61px;
+  padding: 6px 2px;
+  border: 1.5px solid var(--guide-cover);
+  border-radius: 9px;
+  background: var(--guide-paper);
+  box-shadow: 0 2px 0 var(--guide-cover);
+  color: var(--guide-ink);
+}
+#tutorialChoices button:hover { background: var(--guide-sheet); }
+#tutorialChoices button span { font-size: 20px; line-height: 1; }
+#tutorialNext {
+  width: 100%;
+  min-height: 46px;
+  background: var(--guide-cover);
+  border-color: var(--guide-cover);
+  box-shadow: none;
+  color: var(--guide-light);
+}
+#tutorial [hidden] { display: none; }
+#tutorialReplay { width: 100%; margin-top: 14px; }
+@media (max-height: 590px) {
+  .guide-page { gap: 10px; padding-block: 13px; }
+  #tutorialPortrait { width: 60px; }
+}
+@media (prefers-color-scheme: dark) {
+  #tutorial {
+    --guide-paper: #203a35;
+    --guide-sheet: #29463f;
+    --guide-rule: #53766b;
+    --guide-ink: #f2faee;
+    --guide-muted: #c1dbcc;
+    --guide-cover: #b3ddc7;
+    --guide-light: #16372d;
+  }
+}
