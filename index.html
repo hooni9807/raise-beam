@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Raise Beam: 우리 아들 키우기</title>
+  <meta name="description" content="아들을 국민배우로 키우는 84일 육성 게임">
+  <meta name="theme-color" content="#BDEBD8">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="phone">
+    <header class="topbar">
+      <h1 class="title"><span class="clap" aria-hidden="true"></span>우리 아들 키우기</h1>
+      <button class="icon-btn" data-go="settings" aria-label="설정 열기">⚙️</button>
+    </header>
+
+    <div class="chips" id="chips"></div>
+
+    <main>
+      <!-- 홈 -->
+      <section data-view="home">
+        <article class="hero">
+          <p class="ribbon" id="ribbon"></p>
+          <div class="stage">
+            <div class="spot" aria-hidden="true"></div>
+            <div class="sprite" id="sprite" role="img"></div>
+            <p class="bubble" id="bubble" aria-live="polite"></p>
+            <div class="floats" id="floats" aria-hidden="true"></div>
+          </div>
+          <div class="profile">
+            <p class="who"><span class="lv" id="stageTag"></span><strong id="sonName"></strong></p>
+            <ul class="stats" id="stats"></ul>
+          </div>
+        </article>
+
+        <article class="shoot" id="shoot"></article>
+
+        <div class="actions" id="actions"></div>
+
+        <article class="today">
+          <div>
+            <h2>오늘의 일정</h2>
+            <ol class="slots" id="slots"></ol>
+          </div>
+          <button class="btn ghost" id="endDay">하루 마치기</button>
+        </article>
+
+        <div class="duo">
+          <button class="mini" id="fansCard">
+            <span class="mini-k">팬 수</span>
+            <strong id="fansNum"></strong>
+            <span class="mini-sub" id="fansSub"></span>
+          </button>
+          <div class="mini">
+            <span class="mini-k">컨디션</span>
+            <strong id="condNum"></strong>
+            <span class="meter"><i id="condBar"></i></span>
+          </div>
+        </div>
+
+        <article class="goal">
+          <span class="goal-ico" aria-hidden="true">🏆</span>
+          <div>
+            <p class="goal-k">연말 목표</p>
+            <h2>국민배우</h2>
+            <p class="goal-sub">연기 80, 인성 50, 팬 10만 명</p>
+          </div>
+          <span class="goal-pct" id="goalPct"></span>
+          <span class="meter wide"><i id="goalBar"></i></span>
+        </article>
+      </section>
+
+      <!-- 기록 -->
+      <section data-view="log" hidden>
+        <h2 class="view-h">성장 기록</h2>
+        <ol class="log" id="log"></ol>
+      </section>
+
+      <!-- 갤러리 -->
+      <section data-view="gallery" hidden>
+        <h2 class="view-h">우리 아들 갤러리</h2>
+        <p class="view-sub">모은 의상과 소품을 눌러서 입혀 보세요.</p>
+        <div class="gallery" id="gallery"></div>
+      </section>
+
+      <!-- 설정 -->
+      <section data-view="settings" hidden>
+        <h2 class="view-h">설정</h2>
+        <form class="settings" id="settingsForm">
+          <label>아들 이름<input name="name" maxlength="8" required></label>
+          <label>부모 호칭<input name="parent" maxlength="6" required></label>
+          <label class="row"><input type="checkbox" name="sound"> 효과음 켜기</label>
+          <button class="btn">저장하기</button>
+        </form>
+        <button class="btn danger" id="reset">처음부터 다시 키우기</button>
+      </section>
+    </main>
+
+    <nav class="tabbar" aria-label="화면 이동">
+      <button data-go="home" aria-current="page"><span>🏠</span>홈</button>
+      <button data-go="log"><span>📒</span>기록</button>
+      <button data-go="gallery"><span>🖼️</span>갤러리</button>
+      <button data-go="settings"><span>⚙️</span>설정</button>
+    </nav>
+  </div>
+
+  <dialog id="modal">
+    <form method="dialog">
+      <div id="modalBody"></div>
+      <button class="btn" id="modalBtn">확인</button>
+    </form>
+  </dialog>
+  <p class="toast" id="toast" role="status" aria-live="polite"></p>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
