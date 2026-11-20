@@ -1,6 +1,24 @@
 // node test.mjs — 규칙 확인 + 직업별 봇 플레이로 엔딩 밸런스 점검
 import assert from 'node:assert/strict';
 import * as L from './logic.js';
+import { existsSync } from 'node:fs';
+
+assert.equal(L.newGame().gender, 'male');
+assert.equal(L.newGame({ gender: 'female' }).gender, 'female');
+for (const root of ['img', 'img/female']) {
+  const checkArt = path => assert.ok(existsSync(new URL(`./${root}/${path}.webp`, import.meta.url)), `${root}/${path}`);
+  for (const stage of L.STAGES) {
+    checkArt(`stages/${stage.id}`);
+    checkArt(`stages/yawn/${stage.id}`);
+    for (const face of ['focus', 'determined', 'praised', 'victory', 'defeat', 'sick', 'relaxed', 'surprised']) {
+      checkArt(`situations/${stage.id}/${face}`);
+    }
+  }
+  for (const id of L.ENDING_IDS) {
+    checkArt(`endings/${id}`);
+    checkArt(`endings/yawn/${id}`);
+  }
+}
 
 function seeded(seed) {
   return () => ((seed = (seed * 1664525 + 1013904223) % 2 ** 32) / 2 ** 32);

@@ -1,8 +1,8 @@
 // 게임 규칙만 담은 순수 로직. DOM 없음 → node test.mjs 로 검증 가능.
-// 84일 동안 아들을 키우면 스탯에 맞는 직업 엔딩(또는 배드 엔딩)이 나온다.
+// 84일 동안 희범이를 키우면 스탯에 맞는 직업 엔딩(또는 배드 엔딩)이 나온다.
 // 탁구 루트 분기: 시작할 때 국가, 첫 탁구 레슨 때 라켓, 22일째 전형.
 
-// 아들 이름은 임희범으로 고정
+// 캐릭터 이름은 임희범으로 고정
 export const SON = { name: '임희범', nick: '희범', short: '범' };
 
 export const DAYS = 84;
@@ -90,8 +90,8 @@ export const ACTIONS = {
   lesson: { name: '탁구 레슨', icon: '🏓', cost: 20000, cond: -12, gain: { skill: 3, stamina: 1 }, line: '오늘 서브 완전 잘 들어갔어!' },
   study: { name: '공부', icon: '📚', cost: 10000, cond: -10, gain: { smarts: 3 }, line: '오늘 배운 거 다 기억해!' },
   run: { name: '운동', icon: '🏃', cond: -10, gain: { stamina: 3 }, line: '땀 흘리니까 개운해' },
-  safety: { name: '소방 체험', icon: '🧯', cond: -10, gain: { courage: 3 }, line: '소화기 쓰는 법 배웠어!' },
-  farm: { name: '농장 일손', icon: '🐄', cond: -15, gain: { grit: 2, stamina: 1 }, earn: true, line: '송아지 밥 주고 용돈 받았어!' },
+  safety: { name: '고시 준비', icon: '📝', cond: -10, gain: { courage: 3 }, line: '어려운 기출문제도 끝까지 풀었어!' },
+  farm: { name: '농장 알바가기', icon: '🐄', cond: -15, gain: { grit: 2, stamina: 1 }, earn: true, line: '송아지 밥 주고 알바비 받았어!' },
   volunteer: { name: '봉사', icon: '🤝', cond: -6, gain: { manner: 3 }, line: '도와드려서 뿌듯해' },
   craft: { name: '공작 교실', icon: '🔧', cost: 10000, cond: -8, gain: { craft: 3, smarts: 1 }, line: '전구에 불 들어왔어!' },
   rest: { name: '쉬기', icon: '🛋️', cond: 25, gain: {}, line: '잠깐 낮잠 잘게…' },
@@ -120,15 +120,15 @@ export function matchChance(s) {
 }
 
 const EVENTS = [
-  { title: '스카우트 제의', text: '실업팀 감독님이 탁구 치는 모습을 눈여겨보고 가셨어요.', apply: (st, m) => { if (st.racket) st.points += 400 * m; else st.stats.skill += 2; } },
-  { title: '감기에 걸렸어요', text: '콧물이 줄줄. 오늘은 푹 쉬게 해 주세요.', apply: (st) => (st.cond -= 20) },
-  { title: '할머니 용돈', text: '할머니가 몰래 봉투를 쥐여 주셨어요.', apply: (st) => (st.money += 20000) },
-  { title: '송아지가 태어났어요', text: '할아버지 농장에서 송아지 출산을 밤새 도왔어요.', apply: (st) => { st.stats.grit += 3; st.cond -= 8; } },
-  { title: '불이야!', text: '옆집 쓰레기통 불을 소화기로 끄고 칭찬을 받았어요.', apply: (st) => { st.stats.courage += 3; st.stats.manner += 1; } },
-  { title: '선생님 칭찬', text: '담임 선생님이 "질문을 정말 잘한다"고 하셨대요.', apply: (st) => (st.stats.smarts += 3) },
-  { title: '솔깃한 투자 권유', text: '"돈 두 배로 불려 줄게"라는 말에 넘어갈 뻔했어요.', apply: (st) => { if (st.stats.smarts < 40) st.money = Math.floor(st.money / 2); else st.stats.smarts += 2; } },
-  { title: '고장 난 선풍기', text: '드라이버로 뚝딱뚝딱, 선풍기를 직접 고쳤어요.', apply: (st) => (st.stats.craft += 3) },
-  { title: '친구랑 싸웠어요', text: '분해서 울다가, 먼저 사과하고 화해했어요.', apply: (st) => { st.cond -= 10; st.stats.manner += 2; } },
+  { face: 'surprised', title: '스카우트 제의', text: '실업팀 감독님이 탁구 치는 모습을 눈여겨보고 가셨어요.', apply: (st, m) => { if (st.racket) st.points += 400 * m; else st.stats.skill += 2; } },
+  { face: 'sick', title: '감기에 걸렸어요', text: '콧물이 줄줄. 오늘은 푹 쉬게 해 주세요.', apply: (st) => (st.cond -= 20) },
+  { face: 'surprised', title: '할머니 용돈', text: '할머니가 몰래 봉투를 쥐여 주셨어요.', apply: (st) => (st.money += 20000) },
+  { face: 'surprised', title: '송아지가 태어났어요', text: '할아버지 농장에서 송아지 출산을 밤새 도왔어요.', apply: (st) => { st.stats.grit += 3; st.cond -= 8; } },
+  { face: 'praised', title: '불이야!', text: '옆집 쓰레기통 불을 소화기로 끄고 칭찬을 받았어요.', apply: (st) => { st.stats.courage += 3; st.stats.manner += 1; } },
+  { face: 'praised', title: '선생님 칭찬', text: '담임 선생님이 "질문을 정말 잘한다"고 하셨대요.', apply: (st) => (st.stats.smarts += 3) },
+  { face: 'surprised', title: '솔깃한 투자 권유', text: '"돈 두 배로 불려 줄게"라는 말에 넘어갈 뻔했어요.', apply: (st) => { if (st.stats.smarts < 40) st.money = Math.floor(st.money / 2); else st.stats.smarts += 2; } },
+  { face: 'praised', title: '고장 난 선풍기', text: '드라이버로 뚝딱뚝딱, 선풍기를 직접 고쳤어요.', apply: (st) => (st.stats.craft += 3) },
+  { face: 'defeat', title: '친구랑 싸웠어요', text: '분해서 울다가, 먼저 사과하고 화해했어요.', apply: (st) => { st.cond -= 10; st.stats.manner += 2; } },
 ];
 
 /* ---------- 엔딩 ---------- */
@@ -249,9 +249,9 @@ function tidy(s) {
   s.points = Math.max(0, Math.round(s.points));
 }
 
-export function newGame({ country = 'kor' } = {}, rng = Math.random) {
+export function newGame({ country = 'kor', gender = 'male' } = {}, rng = Math.random) {
   const s = {
-    name: SON.name, country, racket: null, style: null,
+    name: SON.name, gender, country, racket: null, style: null,
     day: 1, ap: AP_PER_DAY, money: 60000, points: 0, cond: 80, burnout: 0, awards: 0, ttWins: 0, counts: {},
     stats: Object.fromEntries(STATS.map((t) => [t.key, 8 + Math.floor(rng() * 5)])),
     match: Math.floor(rng() * MATCHES.length), matchDone: false,
@@ -350,7 +350,7 @@ export function endDay(s, rng = Math.random) {
   if (rng() < 0.35) {
     const e = EVENTS[Math.floor(rng() * EVENTS.length)];
     e.apply(s, m);
-    event = { title: e.title, text: e.text };
+    event = { face: e.face, title: e.title, text: e.text };
   }
   tidy(s);
   if (s.day > DAYS) s.ending = decideEnding(s, rng);

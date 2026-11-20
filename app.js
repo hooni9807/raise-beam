@@ -27,18 +27,30 @@ function save() {
   try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* 저장 불가 환경이면 이번 세션만 */ }
 }
 
-/* ---------- 희범이 그림 (나이대 4장, 엔딩 24장) ---------- */
-// 기본은 표정이 다양한 그림, 하품하는 그림(yawn/)은 상황에 따라 바꿔 보여 준다:
-// 컨디션이 낮을 때, 쉬기를 했을 때, 캐릭터를 눌렀을 때 잠깐. 엔딩 그림은 누르면 서로 바뀐다.
+/* ---------- 성장, 상황, 엔딩 초상화 ---------- */
 const TIRED = 35;
-const stageImg = (stage, yawn) => `img/stages/${yawn ? 'yawn/' : ''}${stage}.webp`;
-const endingImg = (id, yawn) => `img/endings/${yawn ? 'yawn/' : ''}${id}.webp`;
-let yawnUntil = 0;
-const isYawning = () => state.cond < TIRED || Date.now() < yawnUntil;
-function yawn(ms = 1800) {
-  yawnUntil = Date.now() + ms;
-  render();
-  setTimeout(render, ms + 30);
+const imageRoot = () => state?.gender === 'female' ? 'img/female' : 'img';
+const stageImg = (stage, yawn) => `${imageRoot()}/stages/${yawn ? 'yawn/' : ''}${stage}.webp`;
+const endingImg = (id, yawn) => `${imageRoot()}/endings/${yawn ? 'yawn/' : ''}${id}.webp`;
+const situationImg = (stage, face) => `${imageRoot()}/situations/${stage}/${face}.webp`;
+const actionFaces = {
+  meal: 'relaxed', lesson: 'determined', study: 'focus', run: 'victory',
+  safety: 'focus', farm: 'surprised', volunteer: 'praised', craft: 'victory', rest: 'relaxed',
+};
+let reaction = null;
+let reactionTimer;
+function react(face, ms = 3200) {
+  clearTimeout(reactionTimer);
+  reaction = face;
+  reactionTimer = setTimeout(() => {
+    reaction = null;
+    const stage = L.stageOf(Math.min(state.day, L.DAYS));
+    $('sprite').innerHTML = portrait(stage.id, state.outfit, state.acc);
+  }, ms);
+}
+function modalFace(face) {
+  const stage = L.stageOf(Math.min(state.day, L.DAYS)).id;
+  return `<img class="m-art small" src="${situationImg(stage, face)}" alt="">`;
 }
 // 누르면 표정이 바뀌는 그림 (엔딩 화면, 도감)
 const swapImg = (id, cls = '', size = 384) =>
@@ -52,10 +64,12 @@ document.addEventListener('click', (e) => {
   beep(760, 0.05);
 });
 
-function portrait(stage, outfit, acc, yawning) {
+function portrait(stage, outfit, acc) {
+  const yawning = reaction === 'yawn' || (!reaction && state.cond < TIRED);
+  const src = reaction && !yawning ? situationImg(stage, reaction) : stageImg(stage, yawning);
   const item = (id) => L.GALLERY.find((g) => g.id === id);
   const stickers = [outfit !== 'basic' && item(outfit)?.icon, acc && item(acc)?.icon, yawning && '💤'].filter(Boolean);
-  return `<img src="${stageImg(stage, yawning)}" alt="" width="384" height="384">` +
+  return `<img src="${src}" alt="" width="384" height="384">` +
     stickers.map((e, i) => `<span class="sticker s${i}" aria-hidden="true">${e}</span>`).join('');
 }
 
@@ -97,7 +111,7 @@ function render() {
     <span class="chip">💰 <b>${s.money.toLocaleString()}</b></span>
     <span class="chip">🏅 <b>${s.awards}</b></span>`;
   $('ribbon').textContent = s.ending ? '엔딩' : `${s.day}일째, ${L.dateLabel(s.day)}, ${L.ageOf(s.day)}살`;
-  $('sprite').innerHTML = portrait(stage.id, s.outfit, s.acc, isYawning());
+  $('sprite').innerHTML = portrait(stage.id, s.outfit, s.acc);
   $('sprite').setAttribute('aria-label', `${s.name}, ${stage.name}. 눌러서 말 걸기`);
   $('stageTag').textContent = stage.name;
   $('sonName').textContent = s.name;
@@ -125,7 +139,7 @@ function render() {
   $('actions').innerHTML = Object.entries(L.ACTIONS).map(([k, a]) => `
     <button class="act" data-act="${k}" ${s.ap < 1 || s.ending ? 'disabled' : ''}>
       <span aria-hidden="true">${a.icon}</span>${a.name}
-      <small>${k === 'lesson' && !s.racket ? '라켓 고르기' : a.cost ? `-${a.cost / 10000}만원` : a.earn ? '용돈 +' : a.cond > 0 ? `컨디션 +${a.cond}` : `컨디션 ${a.cond}`}</small>
+      <small>${k === 'lesson' && !s.racket ? '라켓 고르기' : a.cost ? `-${a.cost / 10000}만원` : a.earn ? '알바비 +' : a.cond > 0 ? `컨디션 +${a.cond}` : `컨디션 ${a.cond}`}</small>
     </button>`).join('');
 
   $('slots').innerHTML = [0, 1, 2].map((i) => `<li class="${s.today[i] ? 'done' : ''}">${s.today[i] || ''}</li>`).join('');
@@ -170,7 +184,7 @@ function render() {
   $('dexCount').textContent = `${seen.length}/${L.ENDING_IDS.length}`;
   $('dex').innerHTML = L.ENDING_IDS.map((id) => {
     const e = L.ENDINGS[id], has = seen.includes(id);
-    return `<div class="dex-item ${has ? '' : 'locked'} ${e.bad ? 'bad' : ''}">${has ? swapImg(id, 'dex-img') : '<span aria-hidden="true">❔</span>'}${has ? e.title : `${e.bad ? '배드 엔딩' : e.group || '직업'} ???`}</div>`;
+    return `<div class="dex-item ${has ? '' : 'locked'} ${e.bad ? 'bad' : ''}">${has ? swapImg(id, 'dex-img') : '<span aria-hidden="true">❔</span>'}${has ? endingTitle(id) : `${e.bad ? '배드 엔딩' : e.group || '직업'} ???`}</div>`;
   }).join('');
 
   $('settingsForm').sound.checked = s.sound;
@@ -183,7 +197,7 @@ $('sprite').addEventListener('click', () => {
   if (state.ending) return;
   say(state.cond < TIRED ? '너무 졸려… 좀 쉬고 싶어' : '하암… 왜 불러?');
   beep(330, 0.12);
-  yawn();
+  react('yawn', 1800); render();
 });
 // 하품 그림 미리 불러 두기 (바뀔 때 깜빡이지 않게)
 for (const st of L.STAGES) new Image().src = stageImg(st.id, true);
@@ -245,13 +259,16 @@ function optionCards(name, entries, checked, extra = () => '') {
 }
 
 function openSetup(prev) {
+  const gender = prev?.gender === 'female' ? 'female' : 'male';
+  $('setupForm').elements.gender.value = gender;
   $('countryOpts').innerHTML = optionCards('country', Object.entries(L.COUNTRIES), prev?.country || 'kor');
   $('setup').showModal();
 }
 $('setupForm').addEventListener('submit', (e) => {
   e.preventDefault();
   const f = e.target, sound = state ? state.sound : true;
-  state = L.newGame({ country: f.country.value });
+  clearTimeout(reactionTimer); reaction = null;
+  state = L.newGame({ country: f.country.value, gender: f.gender.value });
   state.sound = sound;
   state.started = true;
   $('setup').close();
@@ -281,6 +298,7 @@ function openRacketPick() {
     opts: optionCards('choice', Object.entries(L.RACKETS), 'shake'),
     then: (v) => {
       if (!L.chooseRacket(state, v)) return false;
+      react('determined');
       say(`${L.RACKETS[v].name} 너무 멋져!`);
       jingle([659, 784]); render();
       if (L.needsStyle(state)) setTimeout(openStylePick, 200);
@@ -314,9 +332,9 @@ $('actions').addEventListener('click', (e) => {
   if (L.needsStyle(state)) { openStylePick(); return; }
   if (b.dataset.act === 'lesson' && !state.racket) { openRacketPick(); return; }
   const res = L.doAction(state, b.dataset.act);
-  if (!res.error) beep(520 + Math.random() * 300);
+  if (!res.error) { react(actionFaces[b.dataset.act]); beep(520 + Math.random() * 300); }
   afterChange(res);
-  if (!res.error && b.dataset.act === 'rest') { say('하아암… 잘 잤다'); yawn(2200); }
+  if (!res.error && b.dataset.act === 'rest') say('푹 쉬니까 기분 좋아!');
   if (!res.error && state.cond <= 15) toast(`${L.SON.nick}이가 많이 지쳤어요. 이대로 하루를 마치면 지친 날로 기록돼요.`);
 });
 
@@ -325,26 +343,28 @@ function onMatch() {
   const res = L.doMatch(state);
   if (!res.error) {
     jingle(res.win ? [523, 659, 784, 1046] : [392, 330]);
+    react(res.win ? 'victory' : 'defeat');
     modal(res.win
-      ? `<div class="m-ico">${mt.icon}</div><p class="m-title">도전 성공!</p><p class="m-text">"${mt.name}"에서 상장을 받았어요.${mt.points ? ' 탁구 랭킹 포인트도 올랐어요.' : ''}</p>`
-      : `<div class="m-ico">🥲</div><p class="m-title">아쉽게 떨어졌어요</p><p class="m-text">${josa(L.statName(mt.stat), '을', '를')} 조금 더 키우면 성공률이 올라가요.</p>`);
+      ? `${modalFace('victory')}<p class="m-title">도전 성공!</p><p class="m-text">"${mt.name}"에서 상장을 받았어요.${mt.points ? ' 탁구 랭킹 포인트도 올랐어요.' : ''}</p>`
+      : `${modalFace('defeat')}<p class="m-title">아쉽게 떨어졌어요</p><p class="m-text">${josa(L.statName(mt.stat), '을', '를')} 조금 더 키우면 성공률이 올라가요.</p>`);
   }
   afterChange(res);
 }
 
 $('endDay').addEventListener('click', () => {
   if (state.ap > 0 && !confirm(`아직 일정이 ${state.ap}칸 남았어요. 그래도 하루를 마칠까요?`)) return;
+  clearTimeout(reactionTimer); reaction = null;
   const { event, grew, tired } = L.endDay(state);
   beep(440, 0.1);
   if (tired && !state.ending) {
-    modal(`<div class="m-ico">😵</div><p class="m-title">너무 지친 하루였어요</p><p class="m-text">짜증이 늘어 인성이 떨어졌어요. 지친 날이 ${L.BURNOUT_LIMIT}번이 되면 번아웃 엔딩이에요. (지금 ${state.burnout}번)</p>`, '쉬게 해 줄게');
+    modal(`<img class="m-art small" src="${stageImg(L.stageOf(state.day).id, true)}" alt=""><p class="m-title">너무 지친 하루였어요</p><p class="m-text">짜증이 늘어 인성이 떨어졌어요. 지친 날이 ${L.BURNOUT_LIMIT}번이 되면 번아웃 엔딩이에요. (지금 ${state.burnout}번)</p>`, '쉬게 해 줄게');
   }
   if (grew && !state.ending) {
     const st = L.stageOf(state.day);
     jingle([523, 659, 784]);
-    modal(`<div class="m-ico">🌱</div><p class="m-title">${josa(st.name, '이', '가')} 됐어요!</p><p class="m-text">${L.SON.nick}이가 쑥 자랐어요. 이제 스탯이 ${L.statCap(state.day)}까지 자랄 수 있어요.</p>`, '대견하다');
+    modal(`${modalFace('praised')}<p class="m-title">${josa(st.name, '이', '가')} 됐어요!</p><p class="m-text">${L.SON.nick}이가 쑥 자랐어요. 이제 스탯이 ${L.statCap(state.day)}까지 자랄 수 있어요.</p>`, '대견하다');
   }
-  if (event && !state.ending) modal(`<div class="m-ico">📮</div><p class="m-title">${event.title}</p><p class="m-text">${event.text}</p>`);
+  if (event && !state.ending) modal(`${modalFace(event.face)}<p class="m-title">${event.title}</p><p class="m-text">${event.text}</p>`);
   L.newUnlocks(state);
   if (state.ending) showEnding();
   else say(greet());
@@ -353,13 +373,16 @@ $('endDay').addEventListener('click', () => {
   if (L.needsStyle(state) && !$('modal').open) openStylePick();
 });
 
+function endingTitle(id) {
+  return id === 'runaway' && state.gender === 'female' ? '연락 끊긴 딸' : L.ENDINGS[id].title;
+}
 function showEnding() {
   const e = L.ENDINGS[state.ending];
   markEnding(state.ending);
   jingle(e.bad ? [392, 349, 330, 262] : state.ending === 'champion' ? [523, 659, 784, 1046, 1318] : [523, 659, 784, 1046]);
   say(e.bad ? '…' : '키워 줘서 고마워!');
   const badge = e.bad ? '<p class="m-badge bad">배드 엔딩</p>' : '<p class="m-badge">직업 엔딩</p>';
-  modal(`${swapImg(state.ending, 'm-art')}<p class="m-hint">그림을 누르면 표정이 바뀌어요</p>${badge}<p class="m-title">${e.title}</p>
+  modal(`${swapImg(state.ending, 'm-art')}<p class="m-hint">그림을 누르면 표정이 바뀌어요</p>${badge}<p class="m-title">${endingTitle(state.ending)}</p>
     <p class="m-sub">${L.COUNTRIES[state.country].flag} ${esc(state.name)}, ${L.ageOf(L.DAYS)}살</p>
     <p class="m-text">${e.text(state)}</p>
     <ul class="m-list stats-end">${L.STATS.map((t) => `<li>${t.name}<b>${state.stats[t.key]}</b></li>`).join('')}<li>받은 상장<b>${state.awards}개</b></li><li>지친 날<b>${state.burnout}번</b></li></ul>`,
