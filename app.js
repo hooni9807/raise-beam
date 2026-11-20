@@ -372,19 +372,18 @@ function go(view) {
 }
 document.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => go(b.dataset.go)));
 
-const phone = document.querySelector('.phone');
-if (state) {
-  phone.hidden = false;
-  L.newUnlocks(state);
-  render();
-  say(greet());
-} else {
-  // 첫 선택 화면 뒤에 깔릴 미리보기 상태 (저장 안 함)
+if (state) $('prologueStartLabel').textContent = '이어하기';
+
+playPrologue(() => {
+  document.querySelector('.phone').hidden = false;
+  if (state) {
+    L.newUnlocks(state);
+    render();
+    say(greet());
+    return;
+  }
   state = L.newGame();
   render();
   say('응애… 나는 커서 뭐가 될까?');
-  playPrologue(() => {
-    phone.hidden = false;
-    openSetup();
-  });
-}
+  openSetup();
+});

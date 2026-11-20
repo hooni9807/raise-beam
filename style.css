@@ -360,7 +360,7 @@ legend { font-family: var(--display); font-size: 16px; margin-bottom: 6px; }
 .film-meter i { width: clamp(23px, 4vw, 64px); height: 3px; background: #fff3; }
 .film-meter .read { background: #ffd78e; }
 #prologueStart { border: 0; border-radius: 24px; min-height: 44px; background: #ffe1a1; color: #233527; padding: 9px 22px; font-size: 18px; }
-.film-controls button span { margin-left: 9px; }
+.film-controls button span[aria-hidden] { margin-left: 9px; }
 @media (max-width: 580px) {
   .film-frames img { object-position: 56% center; }
   .film-shade { background: linear-gradient(180deg,#15231e75,transparent 21%,transparent 35%,#11221bdb 71%,#11221b 100%); }
