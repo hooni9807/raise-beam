@@ -140,3 +140,11 @@ python3 -m http.server 8000
 | [송하영, 2019년 공개 녹화](https://commons.wikimedia.org/wiki/File:190611_송하영.jpg) | NINE STARS | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) |
 
 </details>
+
+## 스물두 살에 도착한 편지
+
+22세부터 홈에서 편지를 열 수 있습니다. 희범이는 라디오 작가 소라, 목수 지호, 철도 승무원 율 중 한 사람과 결혼하거나 혼자 살기로 답장할 수 있습니다. 답장은 한 번 보내면 저장됩니다. 미뤄 둔 편지는 마지막 날 엔딩을 보기 전에 다시 열립니다.
+
+직업은 그동안 한 활동으로 결정되고, 엔딩 뒤에 이어지는 생활은 답장에 따라 갈립니다. 힘든 결말에는 같은 선택에도 다른 장면이 이어집니다. 발견한 직업과 후일담의 조합은 갤러리에서 다시 읽을 수 있습니다.
+
+결혼을 선택 가능한 인생의 갈림길로 다루는 방식은 [Hasbro의 인생게임 안내](https://instructions.hasbro.com/en-us/instruction/the-game-of-life-family-board-game)와 [결혼을 다룬 인생게임 2 플레이 영상](https://www.youtube.com/watch?v=7JqvLCe4i5E)을 참고했습니다.

@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css?v=prologue-skip">
+  <link rel="stylesheet" href="style.css?v=life-letters">
 </head>
 <body>
   <div class="phone" hidden>
@@ -48,6 +48,7 @@
             <h2>오늘의 일정</h2>
             <ol class="slots" id="slots"></ol>
           </div>
+          <button class="btn ghost" id="lifeInvite" hidden>스물두 살에 도착한 편지 열기</button>
           <button class="btn" id="nationalTeam" hidden>국가대표 도전</button>
           <button class="btn ghost" id="endDay">하루 마치기</button>
         </article>
@@ -81,6 +82,7 @@
         <h2 class="view-h dex-h">엔딩 도감 <span id="dexCount"></span></h2>
         <p class="view-sub">다시 키울 때마다 본 엔딩이 여기에 모여요.</p>
         <div class="dex" id="dex"></div>
+        <section id="lifeShelf" hidden><h2 class="view-h">희범이의 후일담</h2><div id="lifeCollection"></div></section>
       </section>
 
       <!-- 설정 -->
@@ -145,6 +147,16 @@
     </form>
   </dialog>
 
+  <dialog id="lifeDialog" class="picker" aria-labelledby="lifeTitle">
+    <form id="lifeForm">
+      <h2 class="m-title" id="lifeTitle">스물두 살에 도착한 편지</h2>
+      <p>함께 살고 싶은 사람에게 답장하면 결혼해요. 혼자 살고 싶다면 희범이가 자신에게 쓴 편지를 고르세요. 한 번 보낸 답장은 바꿀 수 없어요.</p>
+      <fieldset id="letters"><legend>희범이의 답장</legend></fieldset>
+      <button class="btn">답장 보내기</button>
+      <button type="button" class="btn ghost" id="lifeLater">나중에 읽기</button>
+    </form>
+  </dialog>
+
   <dialog id="teamDialog" class="picker" aria-labelledby="teamTitle">
     <form id="teamForm">
       <h2 class="m-title" id="teamTitle">어느 나라 대표로 도전할까요?</h2>
@@ -175,6 +187,6 @@
   </dialog>
   <p class="toast" id="toast" role="status" aria-live="polite"></p>
 
-  <script type="module" src="app.js?v=national-team"></script>
+  <script type="module" src="app.js?v=life-letters"></script>
 </body>
 </html>

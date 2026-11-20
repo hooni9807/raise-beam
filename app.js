@@ -1,10 +1,18 @@
-import * as L from './logic.js?v=national-team';
+import * as L from './logic.js?v=life-letters';
 import { playPrologue } from './prologue.js?v=skip';
 
 const KEY = 'raise-beam-v3';
 const DEX_KEY = 'raise-beam-endings';
 function seenEndings() {
   try { return JSON.parse(localStorage.getItem(DEX_KEY)) || []; } catch { return []; }
+}
+const LIFE_KEY = 'raise-beam-life-endings';
+function lifeRecords() {
+  try { return JSON.parse(localStorage.getItem(LIFE_KEY)) || []; } catch { return []; }
+}
+function lifeStory(ending, path) {
+  const story = L.LIFE_PATHS[path];
+  return `<article class="life-story"><h3>${story.title}</h3><p>${L.ENDINGS[ending].bad ? story.hard : story.after}</p></article>`;
 }
 function markEnding(id) {
   const seen = seenEndings();
@@ -170,6 +178,15 @@ function render() {
     return `<div class="dex-item ${has ? '' : 'locked'} ${e.bad ? 'bad' : ''}">${has ? swapImg(id, 'dex-img') : '<span aria-hidden="true">❔</span>'}${has ? endingTitle(id) : `${e.bad ? '배드 엔딩' : e.group || '직업'} ???`}</div>`;
   }).join('');
 
+  $('lifeInvite').hidden = !L.canChooseLife(s);
+  if (s.lifePath) {
+    const label = s.lifePath === 'solo' ? '독립 생활' : '배우자 ' + L.LIFE_PATHS[s.lifePath].name;
+    $('tags').innerHTML += `<span class="tag">${label}</span>`;
+  }
+  const records = lifeRecords();
+  $('lifeShelf').hidden = !records.length;
+  $('lifeCollection').innerHTML = records.map(([ending, path]) =>
+    `<details><summary>${ending === 'runaway' ? '연락 끊긴 희범이' : L.ENDINGS[ending].title} · ${L.LIFE_PATHS[path].title}</summary>${lifeStory(ending, path)}</details>`).join('');
   $('settingsForm').sound.checked = s.sound;
   save();
 }
@@ -241,6 +258,21 @@ function optionCards(name, entries, checked) {
     </label>`).join('');
 }
 
+function openLetters() {
+  $('letters').innerHTML = '<legend>희범이의 답장</legend>' + Object.entries(L.LIFE_PATHS).map(([id, p]) =>
+    `<label><input required type="radio" name="reply" value="${id}"><span><strong>${p.name}</strong> <small>${p.detail}</small><em>${p.letter}</em></span></label>`).join('');
+  $('lifeDialog').showModal();
+}
+$('lifeInvite').onclick = openLetters;
+$('lifeLater').onclick = () => $('lifeDialog').close();
+$('lifeForm').onsubmit = event => {
+  event.preventDefault();
+  if (!L.canChooseLife(state)) return;
+  state.lifePath = event.target.elements.reply.value;
+  $('lifeDialog').close();
+  render();
+  say(state.lifePath === 'solo' ? '내 집 열쇠가 생겼어!' : L.LIFE_PATHS[state.lifePath].name + '랑 결혼했어!');
+};
 $('nationalTeam').onclick = () => {
   const teams = Object.entries(L.COUNTRIES).map(([id, team]) => [id, {
     ...team, desc: '선발 기준 ' + team.need.toLocaleString() + '점',
@@ -319,6 +351,7 @@ function onMatch() {
 }
 
 $('endDay').addEventListener('click', () => {
+  if (state.day === L.DAYS && L.canChooseLife(state)) { openLetters(); return; }
   if (state.ap > 0 && !confirm(`아직 일정이 ${state.ap}칸 남았어요. 그래도 하루를 마칠까요?`)) return;
   clearTimeout(reactionTimer); reaction = null;
   const { event, grew, tired } = L.endDay(state);
@@ -345,12 +378,20 @@ function endingTitle(id) {
 function showEnding() {
   const e = L.ENDINGS[state.ending];
   markEnding(state.ending);
+  if (state.lifePath) {
+    const records = lifeRecords();
+    if (!records.some(([e, p]) => e === state.ending && p === state.lifePath)) {
+      records.push([state.ending, state.lifePath]);
+      try { localStorage.setItem(LIFE_KEY, JSON.stringify(records)); } catch { /* 이번 세션에서만 표시 */ }
+    }
+  }
   jingle(e.bad ? [392, 349, 330, 262] : state.ending === 'champion' ? [523, 659, 784, 1046, 1318] : [523, 659, 784, 1046]);
   say(e.bad ? '…' : '키워 줘서 고마워!');
   const badge = e.bad ? '<p class="m-badge bad">배드 엔딩</p>' : '<p class="m-badge">직업 엔딩</p>';
   modal(`${swapImg(state.ending, 'm-art')}<p class="m-hint">그림을 누르면 표정이 바뀌어요</p>${badge}<p class="m-title">${endingTitle(state.ending)}</p>
     <p class="m-sub">${L.COUNTRIES[state.country]?.flag || ''} ${esc(state.name)}, ${L.ageOf(L.DAYS)}살</p>
     <p class="m-text">${e.text(state)}</p>
+    ${state.lifePath ? lifeStory(state.ending, state.lifePath) : ''}
     <ul class="m-list stats-end">${L.STATS.map((t) => `<li>${t.name}<b>${state.stats[t.key]}</b></li>`).join('')}<li>받은 상장<b>${state.awards}개</b></li><li>지친 날<b>${state.burnout}번</b></li></ul>`,
   '다시 키우기', () => openSetup(state));
 }
