@@ -1,5 +1,5 @@
-import * as L from './logic.js';
-import { playPrologue } from './prologue.js';
+import * as L from './logic.js?v=starting-level';
+import { playPrologue } from './prologue.js?v=skip';
 
 const KEY = 'raise-beam-v3';
 const DEX_KEY = 'raise-beam-endings';
@@ -20,7 +20,12 @@ let state = load();
 function load() {
   try {
     const s = JSON.parse(localStorage.getItem(KEY));
-    return s?.started && L.COUNTRIES[s.country] ? s : null;
+    if (!s?.started || !L.COUNTRIES[s.country]) return null;
+    // 아직 첫 일정을 쓰지 않은 구버전 저장은 시작 능력치를 정확히 복원할 수 있다.
+    if (s.startingStatsTotal == null && s.day === 1 && s.ap === L.AP_PER_DAY) {
+      s.startingStatsTotal = L.totalStats(s);
+    }
+    return s;
   } catch { return null; }
 }
 function save() {
@@ -361,7 +366,8 @@ $('settingsForm').addEventListener('submit', (e) => {
 });
 $('reset').addEventListener('click', () => {
   if (!confirm('지금까지 키운 기록이 모두 사라져요. 처음부터 다시 키울까요?')) return;
-  openSetup(state);
+  $('prologueStartLabel').textContent = '게임 시작';
+  playPrologue(() => openSetup(state));
 });
 
 function go(view) {

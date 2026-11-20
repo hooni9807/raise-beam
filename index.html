@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=prologue-skip">
 </head>
 <body>
   <div class="phone" hidden>
@@ -108,7 +108,10 @@
       <div class="film-shade"></div>
       <header class="film-header">
         <span class="film-brand"><i class="paddle" aria-hidden="true"></i> Raise Beam</span>
-        <button type="button" id="prologuePause">일시정지</button>
+        <div class="film-actions">
+          <button type="button" id="prologuePause">일시정지</button>
+          <button type="button" id="prologueSkip">건너뛰기</button>
+        </div>
       </header>
       <div class="film-bottom">
         <div class="film-caption" aria-live="polite" aria-atomic="true">
@@ -165,6 +168,6 @@
   </dialog>
   <p class="toast" id="toast" role="status" aria-live="polite"></p>
 
-  <script type="module" src="app.js?v=prologue-resume"></script>
+  <script type="module" src="app.js?v=prologue-skip"></script>
 </body>
 </html>

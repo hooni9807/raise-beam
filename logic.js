@@ -208,6 +208,7 @@ export function newGame({ country = 'kor', gender = 'male' } = {}, rng = Math.ra
   s.stats.manner += 10;
   for (const [k, v] of Object.entries(COUNTRIES[country].bonus)) s.stats[k] += v;
   tidy(s);
+  s.startingStatsTotal = totalStats(s);
   return s;
 }
 
@@ -303,7 +304,7 @@ export function newUnlocks(s) {
   return fresh;
 }
 
-export const level = (s) => 1 + Math.floor(totalStats(s) / 40);
+export const level = (s) => 1 + Math.floor(Math.max(0, totalStats(s) - (s.startingStatsTotal ?? 0)) / 40);
 // 랭킹 포인트 → 세계 랭킹 (0점 999위, 1만 약 200위, 10만 약 8위). 1위는 우승해야 차지한다.
 export const worldRank = (s) =>
   s.ending === 'champion' ? 1 : Math.max(2, Math.round(999 / (1 + (s.points / 4000) ** 1.5)));

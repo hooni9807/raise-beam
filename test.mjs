@@ -3,6 +3,18 @@ import assert from 'node:assert/strict';
 import * as L from './logic.js';
 import { existsSync } from 'node:fs';
 
+for (const country of Object.keys(L.COUNTRIES)) {
+  for (const roll of [0, 0.999]) {
+    const s = L.newGame({ country }, () => roll);
+    assert.equal(L.level(s), 1);
+    s.stats.skill += 39;
+    assert.equal(L.level(s), 1);
+    s.stats.skill++;
+    assert.equal(L.level(s), 2);
+  }
+}
+assert.equal(L.level({ stats: { skill: 85 } }), 3, '기존 진행 기록의 레벨 보존');
+
 assert.equal(L.newGame().gender, 'male');
 assert.equal(L.newGame({ gender: 'female' }).gender, 'female');
 for (const root of ['img', 'img/female']) {

@@ -10,18 +10,19 @@ export function playPrologue(onStart) {
   const marks = dialog.querySelector('.film-meter').children;
   const next = document.getElementById('prologueNext');
   const start = document.getElementById('prologueStart');
+  const skip = document.getElementById('prologueSkip');
   const pause = document.getElementById('prologuePause');
   const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
   let paused = reduced;
   let index = 0;
   let timer;
 
-  for (const scene of scenes) {
+  frames.replaceChildren(...scenes.map(scene => {
     const image = new Image();
     image.src = 'img/prologue/' + scene.art + '.webp';
     image.alt = '';
-    frames.append(image);
-  }
+    return image;
+  }));
 
   function schedule() {
     clearTimeout(timer);
@@ -38,7 +39,8 @@ export function playPrologue(onStart) {
     document.getElementById('prologueLocation').textContent = '0' + (index + 1) + '　/　' + scene.place;
     document.getElementById('prologueTitle').textContent = scene.title;
     document.getElementById('prologueLine').textContent = scene.line;
-    const moveFocus = last && (document.activeElement === next || document.activeElement === pause);
+    const moveFocus = last && (document.activeElement === next || document.activeElement === pause || document.activeElement === skip);
+    skip.hidden = last;
     pause.hidden = last;
     next.hidden = last;
     start.hidden = !last;
@@ -59,12 +61,14 @@ export function playPrologue(onStart) {
   next.onclick = advance;
   pause.onclick = () => { paused = !paused; updatePause(); };
   dialog.oncancel = event => event.preventDefault();
-  start.onclick = () => {
+  function enterGame() {
     clearTimeout(timer);
     document.removeEventListener('visibilitychange', schedule);
     dialog.close();
     onStart();
-  };
+  }
+  start.onclick = enterGame;
+  skip.onclick = enterGame;
   dialog.showModal();
   dialog.focus();
   document.addEventListener('visibilitychange', schedule);

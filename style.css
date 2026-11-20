@@ -350,7 +350,8 @@ legend { font-family: var(--display); font-size: 16px; margin-bottom: 6px; }
 .film-header { padding-block: max(22px, env(safe-area-inset-top)); display: flex; justify-content: space-between; align-items: center; }
 .film-brand { display: inline-flex; align-items: center; gap: 9px; font: 26px var(--display); text-shadow: 0 1px 6px #182619; }
 .film-brand .paddle { display: inline-block; width: 19px; height: 19px; border-color: #40281a; }
-#prologuePause, #prologueNext { background: #152922aa; border: 1px solid #fff4dd80; color: #fff4dd; border-radius: 24px; padding: 9px 17px; min-height: 44px; }
+.film-actions { display: flex; gap: 6px; }
+#prologuePause, #prologueSkip, #prologueNext { background: #152922aa; border: 1px solid #fff4dd80; color: #fff4dd; border-radius: 24px; padding: 9px 17px; min-height: 44px; }
 .film-bottom { padding-top: 88px; padding-bottom: max(28px, env(safe-area-inset-bottom)); }
 .film-location { font-weight: bold; color: #ffdf9d; letter-spacing: .09em; }
 #prologueTitle { font-size: clamp(40px, 6.2vw, 84px); line-height: 1.16; margin: 8px 0; color: #fff7e8; }
@@ -362,6 +363,9 @@ legend { font-family: var(--display); font-size: 16px; margin-bottom: 6px; }
 #prologueStart { border: 0; border-radius: 24px; min-height: 44px; background: #ffe1a1; color: #233527; padding: 9px 22px; font-size: 18px; }
 .film-controls button span[aria-hidden] { margin-left: 9px; }
 @media (max-width: 580px) {
+  .film-header .film-brand { font-size: 21px; gap: 3px; }
+  .film-actions button { font-size: 14px; }
+  #prologuePause, #prologueSkip { padding-inline: 10px; }
   .film-frames img { object-position: 56% center; }
   .film-shade { background: linear-gradient(180deg,#15231e75,transparent 21%,transparent 35%,#11221bdb 71%,#11221b 100%); }
 }
