@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="phone">
+  <div class="phone" hidden>
     <header class="topbar">
       <h1 class="title"><span class="paddle" aria-hidden="true"></span>Raise Beam</h1>
       <button class="icon-btn" data-go="settings" aria-label="설정 열기">⚙️</button>
@@ -100,6 +100,30 @@
       <button data-go="settings"><span>⚙️</span>설정</button>
     </nav>
   </div>
+
+  <dialog id="prologue" aria-label="임희범 키우기 프롤로그" tabindex="-1">
+    <div class="film">
+      <div class="film-frames" aria-hidden="true"></div>
+      <div class="film-dust" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></div>
+      <div class="film-shade"></div>
+      <header class="film-header">
+        <span class="film-brand"><i class="paddle" aria-hidden="true"></i> Raise Beam</span>
+        <button type="button" id="prologuePause">일시정지</button>
+      </header>
+      <div class="film-bottom">
+        <div class="film-caption" aria-live="polite" aria-atomic="true">
+          <p class="film-location" id="prologueLocation"></p>
+          <h2 id="prologueTitle"></h2>
+          <p id="prologueLine"></p>
+        </div>
+        <footer class="film-controls">
+          <div class="film-meter" aria-label="전체 세 장면"><i></i><i></i><i></i></div>
+          <button type="button" id="prologueNext">다음 장면 <span aria-hidden="true">→</span></button>
+          <button type="button" id="prologueStart" hidden>게임 시작 <span aria-hidden="true">→</span></button>
+        </footer>
+      </div>
+    </div>
+  </dialog>
 
   <!-- 새로 키우기: 캐릭터와 국가 고르기 -->
   <dialog id="setup" class="picker">

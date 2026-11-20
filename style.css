@@ -328,3 +328,53 @@ legend { font-family: var(--display); font-size: 16px; margin-bottom: 6px; }
 .character-options label:has(:checked) { box-shadow: inset 0 0 0 2px currentColor; }
 .character-options input { position: absolute; top: 5px; left: 5px; }
 .character-options img { width: 76px; height: 76px; }
+
+/* 프롤로그는 게임판을 열기 전, 한 화면을 온전히 한 장면에 쓴다. */
+#prologue {
+  position: fixed; inset: 0; width: 100%; max-width: none; height: 100dvh; max-height: none;
+  padding: 0; margin: 0; border: 0; border-radius: 0; box-shadow: none;
+  background: #132422; color: #fff4dd; text-align: left; animation: none;
+}
+#prologue::backdrop { background: #132422; }
+.film { position: relative; isolation: isolate; min-height: 100%; display: flex; flex-direction: column; justify-content: space-between; }
+.film-frames, .film-shade { position: absolute; inset: 0; overflow: hidden; z-index: -1; }
+.film-frames img {
+  width: 100%; height: 100%; position: absolute; inset: 0; object-fit: cover; opacity: 0;
+  transition: opacity .85s ease; transform: scale(1.055);
+}
+.film-frames img.on { opacity: 1; animation: opening-pan 12s ease-out both; }
+@keyframes opening-pan { from { transform: scale(1.055) translateX(-.7%); } to { transform: scale(1.005); } }
+#prologue.still img { animation-play-state: paused; }
+.film-shade { background: linear-gradient(180deg, #14241e87 0%, transparent 22%, transparent 39%, #10211cc7 69%, #10211cf7 100%); }
+.film-header, .film-bottom { width: min(100%, 1440px); margin-inline: auto; padding-inline: clamp(24px, 6vw, 96px); }
+.film-header { padding-block: max(22px, env(safe-area-inset-top)); display: flex; justify-content: space-between; align-items: center; }
+.film-brand { display: inline-flex; align-items: center; gap: 9px; font: 26px var(--display); text-shadow: 0 1px 6px #182619; }
+.film-brand .paddle { display: inline-block; width: 19px; height: 19px; border-color: #40281a; }
+#prologuePause, #prologueNext { background: #152922aa; border: 1px solid #fff4dd80; color: #fff4dd; border-radius: 24px; padding: 9px 17px; min-height: 44px; }
+.film-bottom { padding-top: 88px; padding-bottom: max(28px, env(safe-area-inset-bottom)); }
+.film-location { font-weight: bold; color: #ffdf9d; letter-spacing: .09em; }
+#prologueTitle { font-size: clamp(40px, 6.2vw, 84px); line-height: 1.16; margin: 8px 0; color: #fff7e8; }
+#prologueLine { max-width: 34em; font-size: clamp(16px, 1.65vw, 23px); line-height: 1.62; word-break: keep-all; }
+.film-controls { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 17px; margin-top: 24px; border-top: 1px solid #fdefd852; }
+.film-meter { display: flex; gap: 6px; }
+.film-meter i { width: clamp(23px, 4vw, 64px); height: 3px; background: #fff3; }
+.film-meter .read { background: #ffd78e; }
+#prologueStart { border: 0; border-radius: 24px; min-height: 44px; background: #ffe1a1; color: #233527; padding: 9px 22px; font-size: 18px; }
+.film-controls button span { margin-left: 9px; }
+@media (max-width: 580px) {
+  .film-frames img { object-position: 56% center; }
+  .film-shade { background: linear-gradient(180deg,#15231e75,transparent 21%,transparent 35%,#11221bdb 71%,#11221b 100%); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .film-frames img, .film-frames img.on { animation: none; transition: none; transform: none; }
+}
+
+.film-dust { position: absolute; z-index: -1; inset: 0; overflow: hidden; pointer-events: none; }
+.film-dust i { position: absolute; left: 22%; top: 40%; width: 3px; height: 3px; border-radius: 50%; background: #ffe1a2; box-shadow: 0 0 7px #ffd388; opacity: 0; animation: dust-drift 7s linear infinite; }
+.film-dust i:nth-child(2) { left: 41%; top: 31%; animation-delay: -3s; }
+.film-dust i:nth-child(3) { left: 65%; top: 46%; animation-delay: -5s; }
+.film-dust i:nth-child(4) { left: 81%; top: 26%; animation-delay: -2s; }
+.film-dust i:nth-child(5) { left: 54%; top: 56%; animation-delay: -6s; }
+@keyframes dust-drift { 0% { opacity: 0; } 30%, 65% { opacity: .65; } 100% { opacity: 0; transform: translate(25px,-36px); } }
+#prologue.still .film-dust i { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) { .film-dust { display: none; } }

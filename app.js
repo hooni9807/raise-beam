@@ -1,4 +1,5 @@
 import * as L from './logic.js';
+import { playPrologue } from './prologue.js';
 
 const KEY = 'raise-beam-v3';
 const DEX_KEY = 'raise-beam-endings';
@@ -371,7 +372,9 @@ function go(view) {
 }
 document.querySelectorAll('[data-go]').forEach((b) => b.addEventListener('click', () => go(b.dataset.go)));
 
+const phone = document.querySelector('.phone');
 if (state) {
+  phone.hidden = false;
   L.newUnlocks(state);
   render();
   say(greet());
@@ -380,5 +383,8 @@ if (state) {
   state = L.newGame();
   render();
   say('응애… 나는 커서 뭐가 될까?');
-  openSetup();
+  playPrologue(() => {
+    phone.hidden = false;
+    openSetup();
+  });
 }
