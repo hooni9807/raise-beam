@@ -27,57 +27,15 @@ function save() {
   try { localStorage.setItem(KEY, JSON.stringify(state)); } catch { /* 저장 불가 환경이면 이번 세션만 */ }
 }
 
-/* ---------- 픽셀 아들 (16×16) ---------- */
-const BASE = [
-  '................',
-  '....hhhhhhhh....',
-  '...hhhhhhhhhh...',
-  '..hhhhhhhhhhhh..',
-  '..hhhhhhhhhhhh..',
-  '..hssshhhhsssh..',
-  '..ssssssssssss..',
-  '.ssseesssseesss.',
-  '.ssseesssseesss.',
-  '..sccssssssccs..',
-  '..sssssmmsssss..',
-  '...ssssssssss...',
-  '......ssss......',
-  '...oooossoooo...',
-  '..oooooooooooo..',
-  '.oooooooooooooo.',
-];
-const HAIR = {
-  baby: { 0: '................', 1: '................', 2: '......hhh.......', 3: '....ssshsssss...', 4: '...ssssssssss...', 5: '..ssssssssssss..', 10: '..sssssppsssss..' },
-  kid: { 5: '..hhhhhhhhhhhh..' },
-  teen: { 0: '....h..h..h.....' },
-  adult: { 5: '..hhhhhssssssh..' },
-};
-const ACC = {
-  headband: { 4: '..aaaaaaaaaaaa..' },
-  medal: { 13: '......a..a......', 14: '.......yy.......', 15: '.......yy.......' },
-};
-const OUTFIT = {
-  basic: ['#4F86F7', '#3A6AD1'],
-  club: ['#FF8A3D', '#E06E22'],
-  overalls: ['#4C7BB5', '#3A5F8F'],
-  firecoat: ['#E8B23A', '#C48F1E'],
-  labcoat: ['#F4F6F8', '#D5DBE2'],
-  workwear: ['#2B3A55', '#F28C28'],
-  national: ['#D7263D', '#A81C2F'],
-};
-function spriteSVG(stage, outfit, acc) {
-  const rows = BASE.slice();
-  const over = (m, replace) => { for (const [r, line] of Object.entries(m)) rows[r] = [...line].map((c, i) => (c === '.' && !replace ? rows[r][i] : c)).join(''); };
-  over(HAIR[stage], true);
-  if (ACC[acc]) over(ACC[acc], false);
-  const [o, O] = OUTFIT[outfit] || OUTFIT.basic;
-  const pal = { h: '#3B2A20', s: '#FFD9B8', e: '#2B2B2B', c: '#FF9EAA', m: '#C2554B', p: '#FF6F59', o, O, a: '#FF6F59', y: '#FFC93C' };
-  let rects = '';
-  rows.forEach((row, y) => [...row].forEach((ch, x) => {
-    if (ch === '.') return;
-    rects += `<rect x="${x}" y="${y}" width="1.02" height="1.02" fill="${pal[ch]}"${ch === 'e' ? ' class="eye"' : ''}/>`;
-  }));
-  return `<svg viewBox="0 -1 16 18" aria-hidden="true"><ellipse cx="8" cy="16.6" rx="6" ry=".6" fill="rgba(0,0,0,.15)"/>${rects}</svg>`;
+/* ---------- 희범이 그림 (나이대 4장, 엔딩 24장) ---------- */
+// 입힌 옷과 소품은 그림 위 스티커로 보여 준다
+const stageImg = (stage) => `img/stages/${stage}.webp`;
+const endingImg = (id) => `img/endings/${id}.webp`;
+function portrait(stage, outfit, acc) {
+  const item = (id) => L.GALLERY.find((g) => g.id === id);
+  const stickers = [outfit !== 'basic' && item(outfit)?.icon, acc && item(acc)?.icon].filter(Boolean);
+  return `<img src="${stageImg(stage)}" alt="" width="384" height="384">` +
+    stickers.map((e, i) => `<span class="sticker s${i}" aria-hidden="true">${e}</span>`).join('');
 }
 
 /* ---------- 효과음 ---------- */
@@ -96,8 +54,8 @@ function beep(f = 660, d = 0.08) {
 const jingle = (notes) => notes.forEach((f, i) => setTimeout(() => beep(f, 0.12), i * 110));
 
 /* ---------- 렌더 ---------- */
-const GREET = ['오늘은 뭐 할까?', '엄마, 나 배고파…', '나중에 뭐가 될까?', '오늘도 힘내 볼게!', '같이 놀아 줘!'];
-const greet = () => GREET[state.day % GREET.length].replace('엄마', state.parent);
+const GREET = ['오늘은 뭐 할까?', '나 배고파…', '나중에 뭐가 될까?', '오늘도 힘내 볼게!', '같이 놀아 줘!', '하암… 졸려'];
+const greet = () => GREET[state.day % GREET.length];
 const reqText = (req) => Object.entries(req).map(([k, v]) => `${L.statName(k)} ${v}`).join(', ');
 const FIT_LABEL = ['궁합 보통', '궁합 무난', '궁합 최고'];
 
@@ -113,12 +71,12 @@ function render() {
   const s = state, stage = L.stageOf(Math.min(s.day, L.DAYS)), cap = L.statCap(s.day);
   const country = L.COUNTRIES[s.country], racket = s.racket && L.RACKETS[s.racket], style = s.style && L.STYLES[s.style];
   $('chips').innerHTML = `
-    <span class="chip">👩 ${esc(s.parent)} <b>Lv.${L.level(s)}</b></span>
+    <span class="chip">📈 <b>Lv.${L.level(s)}</b></span>
     <span class="chip" aria-label="남은 일정 ${s.ap}칸">⚡<span class="ap">${[0, 1, 2].map((i) => `<i class="${i < s.ap ? 'on' : ''}"></i>`).join('')}</span></span>
     <span class="chip">💰 <b>${s.money.toLocaleString()}</b></span>
     <span class="chip">🏅 <b>${s.awards}</b></span>`;
   $('ribbon').textContent = s.ending ? '엔딩' : `${s.day}일째, ${L.dateLabel(s.day)}, ${L.ageOf(s.day)}살`;
-  $('sprite').innerHTML = spriteSVG(stage.id, s.outfit, s.acc);
+  $('sprite').innerHTML = portrait(stage.id, s.outfit, s.acc);
   $('sprite').setAttribute('aria-label', `${s.name}, ${stage.name}`);
   $('stageTag').textContent = stage.name;
   $('sonName').textContent = s.name;
@@ -191,11 +149,10 @@ function render() {
   $('dexCount').textContent = `${seen.length}/${L.ENDING_IDS.length}`;
   $('dex').innerHTML = L.ENDING_IDS.map((id) => {
     const e = L.ENDINGS[id], has = seen.includes(id);
-    return `<div class="dex-item ${has ? '' : 'locked'} ${e.bad ? 'bad' : ''}"><span aria-hidden="true">${has ? e.icon : '❔'}</span>${has ? e.title : `${e.bad ? '배드 엔딩' : e.group || '직업'} ???`}</div>`;
+    return `<div class="dex-item ${has ? '' : 'locked'} ${e.bad ? 'bad' : ''}">${has ? `<img src="${endingImg(id)}" alt="" width="384" height="384" loading="lazy">` : '<span aria-hidden="true">❔</span>'}${has ? e.title : `${e.bad ? '배드 엔딩' : e.group || '직업'} ???`}</div>`;
   }).join('');
 
-  const f = $('settingsForm');
-  f.name.value = s.name; f.parent.value = s.parent; f.sound.checked = s.sound;
+  $('settingsForm').sound.checked = s.sound;
   save();
 }
 
@@ -257,21 +214,18 @@ function optionCards(name, entries, checked, extra = () => '') {
 }
 
 function openSetup(prev) {
-  const f = $('setupForm');
-  f.name.value = prev?.name || '빔';
-  f.parent.value = prev?.parent || '엄마';
   $('countryOpts').innerHTML = optionCards('country', Object.entries(L.COUNTRIES), prev?.country || 'kor');
   $('setup').showModal();
 }
 $('setupForm').addEventListener('submit', (e) => {
   e.preventDefault();
   const f = e.target, sound = state ? state.sound : true;
-  state = L.newGame({ name: f.name.value.trim() || '빔', parent: f.parent.value.trim() || '엄마', country: f.country.value });
+  state = L.newGame({ country: f.country.value });
   state.sound = sound;
   state.started = true;
   $('setup').close();
   go('home'); render(); hop();
-  say(`${state.parent}, 잘 부탁해!`);
+  say('응애! 잘 부탁해!');
   jingle([523, 659, 784]);
 });
 
@@ -307,7 +261,7 @@ function openStylePick() {
   const rk = L.RACKETS[state.racket];
   openPick({
     ico: '🌱', title: '탁구 전형을 정할 시간이에요', btn: '이 전형으로 정하기',
-    lead: `${state.name}의 라켓은 ${josa(rk.name, '이에요', '예요')}. 궁합이 좋은 전형을 고르면 탁구 대회와 세계선수권 결승에서 유리해요.`,
+    lead: `${L.SON.nick}이의 라켓은 ${josa(rk.name, '이에요', '예요')}. 궁합이 좋은 전형을 고르면 탁구 대회와 세계선수권 결승에서 유리해요.`,
     opts: optionCards('choice', Object.entries(L.STYLES), null, (id, o) =>
       ` <span class="fit fit-${L.fitLevel(state, id) * 2}">${FIT_LABEL[L.fitLevel(state, id) * 2]}</span><em>국가대표 조건: ${reqText(o.req)}</em>`),
     then: (v) => {
@@ -331,7 +285,7 @@ $('actions').addEventListener('click', (e) => {
   const res = L.doAction(state, b.dataset.act);
   if (!res.error) beep(520 + Math.random() * 300);
   afterChange(res);
-  if (!res.error && state.cond <= 15) toast(`${state.name}이 많이 지쳤어요. 이대로 하루를 마치면 지친 날로 기록돼요.`);
+  if (!res.error && state.cond <= 15) toast(`${L.SON.nick}이가 많이 지쳤어요. 이대로 하루를 마치면 지친 날로 기록돼요.`);
 });
 
 function onMatch() {
@@ -356,7 +310,7 @@ $('endDay').addEventListener('click', () => {
   if (grew && !state.ending) {
     const st = L.stageOf(state.day);
     jingle([523, 659, 784]);
-    modal(`<div class="m-ico">🌱</div><p class="m-title">${josa(st.name, '이', '가')} 됐어요!</p><p class="m-text">${esc(state.name)}의 키가 쑥 자랐어요. 이제 스탯이 ${L.statCap(state.day)}까지 자랄 수 있어요.</p>`, '대견하다');
+    modal(`<div class="m-ico">🌱</div><p class="m-title">${josa(st.name, '이', '가')} 됐어요!</p><p class="m-text">${L.SON.nick}이가 쑥 자랐어요. 이제 스탯이 ${L.statCap(state.day)}까지 자랄 수 있어요.</p>`, '대견하다');
   }
   if (event && !state.ending) modal(`<div class="m-ico">📮</div><p class="m-title">${event.title}</p><p class="m-text">${event.text}</p>`);
   L.newUnlocks(state);
@@ -371,9 +325,9 @@ function showEnding() {
   const e = L.ENDINGS[state.ending];
   markEnding(state.ending);
   jingle(e.bad ? [392, 349, 330, 262] : state.ending === 'champion' ? [523, 659, 784, 1046, 1318] : [523, 659, 784, 1046]);
-  say(e.bad ? '…' : `${state.parent}, 고마워!`);
+  say(e.bad ? '…' : '키워 줘서 고마워!');
   const badge = e.bad ? '<p class="m-badge bad">배드 엔딩</p>' : '<p class="m-badge">직업 엔딩</p>';
-  modal(`<div class="m-ico">${e.icon}</div>${badge}<p class="m-title">${e.title}</p>
+  modal(`<img class="m-art" src="${endingImg(state.ending)}" alt="${e.title}이 된 희범" width="384" height="384">${badge}<p class="m-title">${e.title}</p>
     <p class="m-sub">${L.COUNTRIES[state.country].flag} ${esc(state.name)}, ${L.ageOf(L.DAYS)}살</p>
     <p class="m-text">${e.text(state)}</p>
     <ul class="m-list stats-end">${L.STATS.map((t) => `<li>${t.name}<b>${state.stats[t.key]}</b></li>`).join('')}<li>받은 상장<b>${state.awards}개</b></li><li>지친 날<b>${state.burnout}번</b></li></ul>`,
@@ -401,10 +355,7 @@ $('gallery').addEventListener('click', (e) => {
 
 $('settingsForm').addEventListener('submit', (e) => {
   e.preventDefault();
-  const f = e.target;
-  state.name = f.name.value.trim() || '빔';
-  state.parent = f.parent.value.trim() || '엄마';
-  state.sound = f.sound.checked;
+  state.sound = e.target.sound.checked;
   render(); toast('저장했어요');
 });
 $('reset').addEventListener('click', () => {
@@ -429,6 +380,6 @@ if (state) {
   // 첫 선택 화면 뒤에 깔릴 미리보기 상태 (저장 안 함)
   state = L.newGame();
   render();
-  say('나는 커서 뭐가 될까?');
+  say('응애… 나는 커서 뭐가 될까?');
   openSetup();
 }

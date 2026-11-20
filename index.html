@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Raise Beam</title>
-  <meta name="description" content="84일 동안 아들을 키워 탁구선수, 소방관, 박사, 한우농장 사장님 등 다양한 직업 엔딩을 보는 육성 게임">
+  <meta name="description" content="84일 동안 아들 임희범을 키워 탁구선수, 소방관, 박사, 한우농장 사장님 등 다양한 직업 엔딩을 보는 육성 게임">
   <meta name="theme-color" content="#BDEBD8">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏓</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -92,8 +92,6 @@
       <section data-view="settings" hidden>
         <h2 class="view-h">설정</h2>
         <form class="settings" id="settingsForm">
-          <label>아들 이름<input name="name" maxlength="8" required></label>
-          <label>부모 호칭<input name="parent" maxlength="6" required></label>
           <label class="row"><input type="checkbox" name="sound"> 효과음 켜기</label>
           <button class="btn">저장하기</button>
         </form>
@@ -112,12 +110,9 @@
   <!-- 새로 키우기: 국가와 라켓 고르기 -->
   <dialog id="setup" class="picker">
     <form id="setupForm">
-      <p class="m-ico">🏓</p>
-      <h2 class="m-title">어떤 아이로 키울까요?</h2>
-      <div class="pair">
-        <label>아들 이름<input name="name" maxlength="8" value="빔" required></label>
-        <label>부모 호칭<input name="parent" maxlength="6" value="엄마" required></label>
-      </div>
+      <img class="m-art small" src="img/stages/baby.webp" alt="애기범" width="384" height="384">
+      <h2 class="m-title">애기범, 임희범이 태어났어요</h2>
+      <p class="m-text">84일 동안 어떻게 키우느냐에 따라 24가지 인생 중 하나를 살게 돼요. 먼저 어느 나라에서 키울지 골라 주세요.</p>
       <fieldset>
         <legend>국가</legend>
         <div class="options" id="countryOpts"></div>

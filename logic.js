@@ -2,6 +2,9 @@
 // 84일 동안 아들을 키우면 스탯에 맞는 직업 엔딩(또는 배드 엔딩)이 나온다.
 // 탁구 루트 분기: 시작할 때 국가, 첫 탁구 레슨 때 라켓, 22일째 전형.
 
+// 아들 이름은 임희범으로 고정
+export const SON = { name: '임희범', nick: '희범', short: '범' };
+
 export const DAYS = 84;
 export const AP_PER_DAY = 3;
 
@@ -63,10 +66,10 @@ export const fitLevel = (s, style = s.style) =>
   !style || !s.racket || !STYLES[style].fits.includes(s.racket) ? 0 : STYLES[style].half ? 0.5 : 1;
 
 export const STAGES = [
-  { id: 'baby', name: '아기', from: 1, age: [1, 6], mult: 1 },
-  { id: 'kid', name: '어린이', from: 22, age: [7, 12], mult: 3 },
-  { id: 'teen', name: '청소년', from: 43, age: [13, 18], mult: 6 },
-  { id: 'adult', name: '어른', from: 64, age: [19, 24], mult: 12 },
+  { id: 'baby', name: '애기범', from: 1, age: [1, 6], mult: 1 },
+  { id: 'kid', name: '꼬마범', from: 22, age: [7, 12], mult: 3 },
+  { id: 'teen', name: '사춘기범', from: 43, age: [13, 18], mult: 6 },
+  { id: 'adult', name: '어른범', from: 64, age: [19, 24], mult: 12 },
 ];
 export const STYLE_DAY = STAGES[1].from;
 export const stageIndex = (day) => STAGES.findLastIndex((s) => day >= s.from);
@@ -78,7 +81,7 @@ export function ageOf(day) {
 const WEEKDAYS = ['월', '화', '수', '목', '금', '토', '일'];
 export const dateLabel = (day) => `${Math.ceil(day / 7)}주차 ${WEEKDAYS[(day - 1) % 7]}요일`;
 
-// 나이대별 성장 한계: 아기 30, 어린이 55, 청소년 80, 어른 100
+// 나이대별 성장 한계: 애기범 30, 꼬마범 55, 사춘기범 80, 어른범 100
 export const STAT_CAPS = [30, 55, 80, 100];
 export const statCap = (day) => STAT_CAPS[stageIndex(Math.min(day, DAYS))];
 
@@ -132,7 +135,6 @@ const EVENTS = [
 // 직업: 조건(스탯, 돈, 상장, 훈련 횟수)을 모두 채운 직업 중 가장 여유 있게 채운 직업이 엔딩이 된다.
 // 프린세스 메이커처럼 스탯뿐 아니라 "무엇을 몇 번 했는지"도 엔딩을 가른다.
 const t = (text) => () => text;
-const hasBatchim = (w) => { const c = w.charCodeAt(w.length - 1) - 0xac00; return c >= 0 && c <= 11171 && c % 28 > 0; };
 export const CAREERS = [
   // 탁구 루트 (라켓을 골라야 열림)
   { id: 'tt', group: '탁구', name: '탁구 국가대표', icon: '🏓', racket: true, tt: true, req: (s) => reqOf(s) },
@@ -143,18 +145,18 @@ export const CAREERS = [
   { id: 'trainer', group: '운동', name: '헬스 트레이너', icon: '💪', req: () => ({ stamina: 85, manner: 40 }), text: t('체육관을 열었어요. 회원들이 줄을 서요.') },
   { id: 'firefighter', group: '안전', name: '소방관', icon: '🚒', req: () => ({ courage: 70, stamina: 65, manner: 50 }), text: t('불길 속에서 아이를 구해 나왔어요. 동네의 영웅이 됐어요.') },
   { id: 'police', group: '안전', name: '경찰관', icon: '👮', req: () => ({ courage: 65, manner: 60, smarts: 50 }), text: t('어르신 길 안내부터 범인 검거까지, 동네 지구대의 든든한 경찰관이 됐어요.') },
-  { id: 'astronaut', group: '과학', name: '우주비행사', icon: '🚀', req: () => ({ smarts: 75, courage: 75, stamina: 70 }), text: t('우주정거장에서 지구를 내려다보며 엄마에게 영상 통화를 걸었어요.') },
+  { id: 'astronaut', group: '과학', name: '우주비행사', icon: '🚀', req: () => ({ smarts: 75, courage: 75, stamina: 70 }), text: t('우주정거장에서 지구를 내려다보며 집에 영상 통화를 걸었어요.') },
   // 공부하는 일
   { id: 'doctor', group: '의료', name: '의사', icon: '🩺', req: () => ({ smarts: 85, manner: 60, grit: 60 }), text: t('소아과 의사가 됐어요. 주사 맞는 아이들에게 사탕을 꼭 챙겨 줘요.') },
   { id: 'nurse', group: '의료', name: '간호사', icon: '💉', req: () => ({ manner: 70, stamina: 60, smarts: 55 }), text: t('응급실 간호사가 됐어요. 밤새 환자 곁을 지키는 따뜻한 손이에요.') },
-  { id: 'scientist', group: '과학', name: '생명과학자', icon: '🔬', req: () => ({ smarts: 85, grit: 70 }), text: t('10년 연구 끝에 새로운 치료 물질을 발견해 박사가 됐어요. 논문 감사의 말에 엄마 이름을 적었어요.') },
+  { id: 'scientist', group: '과학', name: '생명과학자', icon: '🔬', req: () => ({ smarts: 85, grit: 70 }), text: t('10년 연구 끝에 새로운 치료 물질을 발견해 박사가 됐어요. 논문 감사의 말에 부모님 이름을 적었어요.') },
   { id: 'professor', group: '교육', name: '교수', icon: '🎓', req: () => ({ smarts: 75, manner: 65 }), text: t('대학 강의실이 늘 꽉 차는 인기 교수님이 됐어요.') },
   { id: 'teacher', group: '교육', name: '초등학교 선생님', icon: '🍎', req: () => ({ manner: 75, smarts: 55 }), text: t('아이들이 제일 좋아하는 담임 선생님이 됐어요.') },
   // 손 쓰는 일
   { id: 'electrician', group: '기술', name: '전기기사', icon: '⚡', req: () => ({ craft: 70, smarts: 55, courage: 40 }), counts: { craft: 15 }, text: t('전기기사 자격증을 따서 새 아파트 단지 배선을 깔아요. 정전 난 동네에 제일 먼저 달려가요.') },
   { id: 'chef', group: '기술', name: '한식 셰프', icon: '👨‍🍳', req: () => ({ craft: 65, stamina: 55, grit: 55 }), text: t('할머니 손맛을 이어받아 한식당을 열었어요. 예약이 석 달 밀렸어요.') },
   { id: 'creator', group: '기술', name: '크리에이터', icon: '🎥', req: () => ({ courage: 60, craft: 55 }), awards: 5, text: t('직접 찍고 편집한 도전 영상으로 구독자 100만 명을 모았어요.') },
-  { id: 'bj', group: '방송', name: '인기 BJ', icon: '🎙️', req: () => ({ courage: 65, stamina: 50 }), counts: { rest: 15 }, text: (s) => `밤마다 라이브 방송을 켜는 "BJ ${s.name}"${hasBatchim(s.name) ? '이' : '가'} 됐어요. 겁 없는 입담에 별풍선이 쏟아져요. 낮엔 자느라 엄마 전화를 잘 못 받아요.` },
+  { id: 'bj', group: '방송', name: '인기 BJ', icon: '🎙️', req: () => ({ courage: 65, stamina: 50 }), counts: { rest: 15 }, text: t(`밤마다 라이브 방송을 켜는 "BJ ${SON.short}"이 됐어요. 겁 없는 입담에 별풍선이 쏟아져요. 낮엔 자느라 집에 전화를 잘 못 해요.`) },
   { id: 'farmer', group: '사업', name: '한우농장 사장님', icon: '🐄', req: () => ({ grit: 70, stamina: 55 }), money: 400000, text: t('모아 둔 돈으로 할아버지 농장을 물려받아 키웠어요. 1++ 한우로 품평회 대상을 받았어요.') },
 ];
 
@@ -162,7 +164,7 @@ export const ENDINGS = {
   champion: { title: '세계탁구선수권 우승', icon: '🏆', group: '탁구', text: (s) => `${STYLES[s.style || 'allround'].win} ${COUNTRIES[s.country].flag} 국기를 들고 시상대 맨 위에 섰어요.` },
   runnerup: { title: '세계탁구선수권 준우승', icon: '🥈', group: '탁구', text: (s) => `결승 마지막 세트 듀스 끝에 아쉽게 졌어요. 그래도 ${COUNTRIES[s.country].flag} 국가대표 은메달이에요.` },
   ...Object.fromEntries(CAREERS.filter((c) => !c.tt).map((c) => [c.id, { title: c.name, icon: c.icon, group: c.group, text: c.text }])),
-  office: { title: '회사원', icon: '💼', group: '평범', text: t('특별한 꿈은 못 찾았지만 성실한 회사원이 됐어요. 주말마다 엄마랑 밥 먹는 게 제일 좋대요.') },
+  office: { title: '회사원', icon: '💼', group: '평범', text: t('특별한 꿈은 못 찾았지만 성실한 회사원이 됐어요. 주말마다 집에 와서 밥 먹는 게 제일 좋대요.') },
   // 배드 엔딩
   homeless: { title: '노숙자', icon: '🥶', bad: true, text: t('돈 관리를 못 해 빈털터리가 됐어요. 오늘은 역 대합실에서 밤을 보내요. 용돈을 모으는 법부터 가르쳐 주세요.') },
   burnout: { title: '번아웃', icon: '🥀', bad: true, text: t('너무 지친 날이 많았어요. 지금은 모든 걸 내려놓고 쉬는 중이에요. 다음엔 쉬는 날도 챙겨 주세요.') },
@@ -247,9 +249,9 @@ function tidy(s) {
   s.points = Math.max(0, Math.round(s.points));
 }
 
-export function newGame({ name = '빔', parent = '엄마', country = 'kor' } = {}, rng = Math.random) {
+export function newGame({ country = 'kor' } = {}, rng = Math.random) {
   const s = {
-    name, parent, country, racket: null, style: null,
+    name: SON.name, country, racket: null, style: null,
     day: 1, ap: AP_PER_DAY, money: 60000, points: 0, cond: 80, burnout: 0, awards: 0, ttWins: 0, counts: {},
     stats: Object.fromEntries(STATS.map((t) => [t.key, 8 + Math.floor(rng() * 5)])),
     match: Math.floor(rng() * MATCHES.length), matchDone: false,
