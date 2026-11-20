@@ -1,6 +1,6 @@
-import * as L from './logic.js?v=photo-album';
+import * as L from './logic.js?v=learn-skills';
 import { playPrologue } from './prologue.js?v=birth1996';
-import { openTutorial } from './tutorial.js?v=photo-album';
+import { openTutorial } from './tutorial.js?v=learn-skills';
 
 const KEY = 'raise-beam-v3';
 const DEX_KEY = 'raise-beam-endings';

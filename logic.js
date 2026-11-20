@@ -60,7 +60,7 @@ export const ACTIONS = {
   safety: { name: '고시 준비', icon: '📝', cond: -10, gain: { courage: 3 }, line: '어려운 기출문제도 끝까지 풀었어!' },
   farm: { name: '농장 알바가기', icon: '🐄', cond: -15, gain: { grit: 2, stamina: 1 }, earn: true, line: '송아지 밥 주고 알바비 받았어!' },
   volunteer: { name: '봉사', icon: '🤝', cond: -6, gain: { manner: 3 }, line: '도와드려서 뿌듯해' },
-  craft: { name: '공작 교실', icon: '🔧', cost: 10000, cond: -8, gain: { craft: 3, smarts: 1 }, line: '전구에 불 들어왔어!' },
+  craft: { name: '기술 배우기', icon: '🔧', cost: 10000, cond: -8, gain: { craft: 3, smarts: 1 }, line: '전구에 불 들어왔어!' },
   rest: { name: '쉬기', icon: '🛋️', cond: 25, gain: {}, line: '잠깐 낮잠 잘게…' },
 };
 
