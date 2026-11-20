@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Raise Beam: 우리 아들 키우기</title>
-  <meta name="description" content="아들을 국민배우로 키우는 84일 육성 게임">
+  <meta name="description" content="아들을 탁구 국가대표로 키워 세계탁구선수권 우승에 도전하는 84일 육성 게임">
   <meta name="theme-color" content="#BDEBD8">
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏓</text></svg>">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&display=swap" rel="stylesheet">
@@ -15,7 +15,7 @@
 <body>
   <div class="phone">
     <header class="topbar">
-      <h1 class="title"><span class="clap" aria-hidden="true"></span>우리 아들 키우기</h1>
+      <h1 class="title"><span class="paddle" aria-hidden="true"></span>우리 아들 키우기</h1>
       <button class="icon-btn" data-go="settings" aria-label="설정 열기">⚙️</button>
     </header>
 
@@ -34,11 +34,12 @@
           </div>
           <div class="profile">
             <p class="who"><span class="lv" id="stageTag"></span><strong id="sonName"></strong></p>
+            <p class="tags" id="tags"></p>
             <ul class="stats" id="stats"></ul>
           </div>
         </article>
 
-        <article class="shoot" id="shoot"></article>
+        <article class="match" id="match"></article>
 
         <div class="actions" id="actions"></div>
 
@@ -51,10 +52,10 @@
         </article>
 
         <div class="duo">
-          <button class="mini" id="fansCard">
-            <span class="mini-k">팬 수</span>
-            <strong id="fansNum"></strong>
-            <span class="mini-sub" id="fansSub"></span>
+          <button class="mini" id="rankCard">
+            <span class="mini-k">세계 랭킹</span>
+            <strong id="rankNum"></strong>
+            <span class="mini-sub" id="rankSub"></span>
           </button>
           <div class="mini">
             <span class="mini-k">컨디션</span>
@@ -66,12 +67,13 @@
         <article class="goal">
           <span class="goal-ico" aria-hidden="true">🏆</span>
           <div>
-            <p class="goal-k">연말 목표</p>
-            <h2>국민배우</h2>
-            <p class="goal-sub">연기 80, 인성 50, 팬 10만 명</p>
+            <p class="goal-k">최종 목표</p>
+            <h2>세계탁구선수권 우승</h2>
+            <p class="goal-sub" id="goalSub"></p>
           </div>
           <span class="goal-pct" id="goalPct"></span>
           <span class="meter wide"><i id="goalBar"></i></span>
+          <p class="goal-final" id="goalFinal"></p>
         </article>
       </section>
 
@@ -84,7 +86,7 @@
       <!-- 갤러리 -->
       <section data-view="gallery" hidden>
         <h2 class="view-h">우리 아들 갤러리</h2>
-        <p class="view-sub">모은 의상과 소품을 눌러서 입혀 보세요.</p>
+        <p class="view-sub">모은 유니폼과 소품을 눌러서 입혀 보세요.</p>
         <div class="gallery" id="gallery"></div>
       </section>
 
@@ -108,6 +110,38 @@
       <button data-go="settings"><span>⚙️</span>설정</button>
     </nav>
   </div>
+
+  <!-- 새로 키우기: 국가와 라켓 고르기 -->
+  <dialog id="setup" class="picker">
+    <form id="setupForm">
+      <p class="m-ico">🏓</p>
+      <h2 class="m-title">어떤 선수로 키울까요?</h2>
+      <div class="pair">
+        <label>아들 이름<input name="name" maxlength="8" value="빔" required></label>
+        <label>부모 호칭<input name="parent" maxlength="6" value="엄마" required></label>
+      </div>
+      <fieldset>
+        <legend>국가</legend>
+        <div class="options" id="countryOpts"></div>
+      </fieldset>
+      <fieldset>
+        <legend>라켓 그립</legend>
+        <div class="options" id="racketOpts"></div>
+      </fieldset>
+      <button class="btn">키우기 시작</button>
+    </form>
+  </dialog>
+
+  <!-- 22일째: 전형 고르기 -->
+  <dialog id="stylePick" class="picker">
+    <form id="styleForm">
+      <p class="m-ico">🌱</p>
+      <h2 class="m-title">전형을 정할 시간이에요</h2>
+      <p class="m-text" id="styleLead"></p>
+      <div class="options" id="styleOpts"></div>
+      <button class="btn">이 전형으로 정하기</button>
+    </form>
+  </dialog>
 
   <dialog id="modal">
     <form method="dialog">
