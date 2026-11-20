@@ -117,6 +117,9 @@ for (const [target, routine] of Object.entries({
   const s = L.newGame();
   s.stats.manner = 60; s.stats.skill = 85; s.points = 160000;
   s.counts = { lesson: 12, league: 18 };
+  assert.equal(s.country, null);
+  assert.equal(L.decideEnding(s), 'pro');
+  s.country = 'kor';
   assert.equal(L.decideEnding(s, () => 0), 'champion');
   assert.equal(L.decideEnding(s, () => 1), 'runnerup');
 }

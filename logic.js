@@ -19,11 +19,11 @@ export const STATS = [
 export const statName = (k) => STATS.find((s) => s.key === k).name;
 
 export const COUNTRIES = {
-  kor: { name: '대한민국', flag: '🇰🇷', bonus: { grit: 6, manner: 3 }, need: 100000, desc: '근성의 나라. 끈기와 인성을 갖고 시작해요.' },
-  chn: { name: '중국', flag: '🇨🇳', bonus: { skill: 6, smarts: 3 }, need: 150000, desc: '탁구 최강국. 탁구 실력을 갖고 시작하지만 대표 선발 기준이 높아요.' },
-  jpn: { name: '일본', flag: '🇯🇵', bonus: { smarts: 6, manner: 3 }, need: 100000, desc: '꼼꼼한 공부 습관. 지능과 인성을 갖고 시작해요.' },
-  ger: { name: '독일', flag: '🇩🇪', bonus: { stamina: 6, smarts: 3 }, need: 100000, desc: '튼튼한 몸과 과학. 체력과 지능을 갖고 시작해요.' },
-  swe: { name: '스웨덴', flag: '🇸🇪', bonus: { manner: 6, courage: 3 }, need: 80000, desc: '다정한 복지 국가. 인성과 용기를 갖고 시작하고, 탁구 대표 기준이 낮아요.' },
+  kor: { name: '대한민국', flag: '🇰🇷', need: 100000 },
+  chn: { name: '중국', flag: '🇨🇳', need: 150000 },
+  jpn: { name: '일본', flag: '🇯🇵', need: 100000 },
+  ger: { name: '독일', flag: '🇩🇪', need: 100000 },
+  swe: { name: '스웨덴', flag: '🇸🇪', need: 80000 },
 };
 
 export const STAGES = [
@@ -156,6 +156,8 @@ export function likeness(s, c) {
   return dot / Math.sqrt(vv * rr || 1);
 }
 
+export const isTableTennisPro = s => s.counts.league >= 8 && s.counts.lesson >= 6 && s.stats.skill >= 55;
+
 export function decideEnding(s, rng = Math.random) {
   if (s.stats.manner <= 15) return 'runaway';
   if (s.burnout >= BURNOUT_LIMIT) return 'burnout';
@@ -163,8 +165,8 @@ export function decideEnding(s, rng = Math.random) {
   const visits = lesson + teach + league;
   if (teach >= 8 && lesson >= 8 && league >= 8 && s.money >= 300000) return 'gym';
   if (teach >= 12 && teach >= league && teach >= lesson) return 'coach';
-  if (league >= 8 && lesson >= 6 && s.stats.skill >= 55) {
-    if (league >= 15 && s.stats.skill >= 80 && s.points >= COUNTRIES[s.country].need) {
+  if (isTableTennisPro(s)) {
+    if (league >= 15 && s.stats.skill >= 80 && s.country && s.points >= COUNTRIES[s.country].need) {
       return rng() < Math.min(0.9, 0.4 + s.ttWins * 0.025) ? 'champion' : 'runnerup';
     }
     return 'pro';
@@ -196,7 +198,7 @@ function tidy(s) {
   s.points = Math.max(0, Math.round(s.points));
 }
 
-export function newGame({ country = 'kor', gender = 'male' } = {}, rng = Math.random) {
+export function newGame({ country = null, gender = 'male' } = {}, rng = Math.random) {
   const s = {
     name: SON.name, gender, country,
     day: 1, ap: AP_PER_DAY, money: 60000, points: 0, cond: 80, burnout: 0, awards: 0, ttWins: 0, counts: {},
@@ -205,8 +207,8 @@ export function newGame({ country = 'kor', gender = 'male' } = {}, rng = Math.ra
     today: [], log: [], unlocked: [], outfit: 'basic', acc: null, sound: true, ending: null,
   };
   // 인성은 너무 낮으면 배드 엔딩이라 조금 높게 시작
-  s.stats.manner += 10;
-  for (const [k, v] of Object.entries(COUNTRIES[country].bonus)) s.stats[k] += v;
+  s.stats.manner += 13;
+  s.stats.grit += 6;
   tidy(s);
   s.startingStatsTotal = totalStats(s);
   return s;

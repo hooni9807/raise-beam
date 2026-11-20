@@ -48,6 +48,7 @@
             <h2>오늘의 일정</h2>
             <ol class="slots" id="slots"></ol>
           </div>
+          <button class="btn" id="nationalTeam" hidden>국가대표 도전</button>
           <button class="btn ghost" id="endDay">하루 마치기</button>
         </article>
 
@@ -128,11 +129,11 @@
     </div>
   </dialog>
 
-  <!-- 새로 키우기: 캐릭터와 국가 고르기 -->
+  <!-- 새로 키우기: 캐릭터 고르기 -->
   <dialog id="setup" class="picker">
     <form id="setupForm">
       <h2 class="m-title">어떤 희범이를 키울까요?</h2>
-      <p class="m-text">캐릭터와 국가를 고르면 84일의 성장이 시작돼요.</p>
+      <p class="m-text">캐릭터를 고르면 84일의 성장이 시작돼요.</p>
       <fieldset>
         <legend>임희범 선택</legend>
         <div class="character-options">
@@ -140,11 +141,17 @@
           <label><input type="radio" name="gender" value="female" required><img src="img/female/stages/baby.webp" alt=""><b>여자 희범</b></label>
         </div>
       </fieldset>
-      <fieldset>
-        <legend>국가</legend>
-        <div class="options" id="countryOpts"></div>
-      </fieldset>
       <button class="btn">키우기 시작</button>
+    </form>
+  </dialog>
+
+  <dialog id="teamDialog" class="picker" aria-labelledby="teamTitle">
+    <form id="teamForm">
+      <h2 class="m-title" id="teamTitle">어느 나라 대표로 도전할까요?</h2>
+      <p class="m-text">리그전 15회, 탁구 실력 80과 국가별 랭킹 포인트를 달성하면 세계선수권에 도전해요. 지원할 국가는 한 번 고를 수 있어요.</p>
+      <div id="countryOpts" class="options"></div>
+      <button class="btn">이 국가로 지원</button>
+      <button type="button" id="teamCancel">나중에 선택</button>
     </form>
   </dialog>
 
@@ -168,6 +175,6 @@
   </dialog>
   <p class="toast" id="toast" role="status" aria-live="polite"></p>
 
-  <script type="module" src="app.js?v=prologue-skip"></script>
+  <script type="module" src="app.js?v=national-team"></script>
 </body>
 </html>

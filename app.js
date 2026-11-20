@@ -1,4 +1,4 @@
-import * as L from './logic.js?v=starting-level';
+import * as L from './logic.js?v=national-team';
 import { playPrologue } from './prologue.js?v=skip';
 
 const KEY = 'raise-beam-v3';
@@ -20,7 +20,7 @@ let state = load();
 function load() {
   try {
     const s = JSON.parse(localStorage.getItem(KEY));
-    if (!s?.started || !L.COUNTRIES[s.country]) return null;
+    if (!s?.started || (s.country !== null && !Object.hasOwn(L.COUNTRIES, s.country))) return null;
     // 아직 첫 일정을 쓰지 않은 구버전 저장은 시작 능력치를 정확히 복원할 수 있다.
     if (s.startingStatsTotal == null && s.day === 1 && s.ap === L.AP_PER_DAY) {
       s.startingStatsTotal = L.totalStats(s);
@@ -110,7 +110,8 @@ function render() {
   $('sprite').setAttribute('aria-label', `${s.name}, ${stage.name}. 눌러서 말 걸기`);
   $('stageTag').textContent = stage.name;
   $('sonName').textContent = s.name;
-  $('tags').innerHTML = `<span class="tag">${country.flag} ${country.name}</span>` +
+  $('nationalTeam').hidden = !!s.country || !!s.ending || !L.isTableTennisPro(s);
+  $('tags').innerHTML = (country ? `<span class="tag">${country.flag} ${country.name}</span>` : '') +
     (s.burnout ? `<span class="tag warn">지친 날 ${s.burnout}/${L.BURNOUT_LIMIT}</span>` : '');
   $('stats').innerHTML = L.STATS.map((t) => `
     <li><span>${t.name}</span>
@@ -240,17 +241,31 @@ function optionCards(name, entries, checked) {
     </label>`).join('');
 }
 
+$('nationalTeam').onclick = () => {
+  const teams = Object.entries(L.COUNTRIES).map(([id, team]) => [id, {
+    ...team, desc: '선발 기준 ' + team.need.toLocaleString() + '점',
+  }]);
+  $('countryOpts').innerHTML = optionCards('country', teams, null);
+  $('teamDialog').showModal();
+};
+$('teamCancel').onclick = () => $('teamDialog').close();
+$('teamForm').onsubmit = event => {
+  event.preventDefault();
+  state.country = event.target.elements.country.value;
+  $('teamDialog').close();
+  render();
+};
+
 function openSetup(prev) {
   const gender = prev?.gender === 'female' ? 'female' : 'male';
   $('setupForm').elements.gender.value = gender;
-  $('countryOpts').innerHTML = optionCards('country', Object.entries(L.COUNTRIES), prev?.country || 'kor');
   $('setup').showModal();
 }
 $('setupForm').addEventListener('submit', (e) => {
   e.preventDefault();
   const f = e.target, sound = state ? state.sound : true;
   clearTimeout(reactionTimer); reaction = null;
-  state = L.newGame({ country: f.country.value, gender: f.gender.value });
+  state = L.newGame({ gender: f.gender.value });
   state.sound = sound;
   state.started = true;
   $('setup').close();
@@ -334,7 +349,7 @@ function showEnding() {
   say(e.bad ? '…' : '키워 줘서 고마워!');
   const badge = e.bad ? '<p class="m-badge bad">배드 엔딩</p>' : '<p class="m-badge">직업 엔딩</p>';
   modal(`${swapImg(state.ending, 'm-art')}<p class="m-hint">그림을 누르면 표정이 바뀌어요</p>${badge}<p class="m-title">${endingTitle(state.ending)}</p>
-    <p class="m-sub">${L.COUNTRIES[state.country].flag} ${esc(state.name)}, ${L.ageOf(L.DAYS)}살</p>
+    <p class="m-sub">${L.COUNTRIES[state.country]?.flag || ''} ${esc(state.name)}, ${L.ageOf(L.DAYS)}살</p>
     <p class="m-text">${e.text(state)}</p>
     <ul class="m-list stats-end">${L.STATS.map((t) => `<li>${t.name}<b>${state.stats[t.key]}</b></li>`).join('')}<li>받은 상장<b>${state.awards}개</b></li><li>지친 날<b>${state.burnout}번</b></li></ul>`,
   '다시 키우기', () => openSetup(state));
