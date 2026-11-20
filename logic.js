@@ -123,7 +123,30 @@ export const CAREERS = [
   { id: 'farmer', group: '사업', name: '한우농장 사장님', icon: '🐄', req: () => ({ grit: 70, stamina: 55 }), money: 400000, text: t('모아 둔 돈으로 할아버지 농장을 물려받아 키웠어요. 1++ 한우로 품평회 대상을 받았어요.') },
 ];
 
+const SPECIAL_ENDINGS = [
+  {"id": "nightgym", "title": "마지막 불을 켜는 관장", "text": "회원들이 야간 근무를 마칠 때마다 체육관 문을 열어 줬어요. 이제 회원들이 돌아가며 새벽반의 열쇠를 맡습니다.", "counts": {"instruct": 26, "run": 25, "volunteer": 16}, "stats": {"stamina": 85, "manner": 65}, "hidden": true},
+  {"id": "repairbus", "title": "골목의 수리 버스", "text": "공구함을 실은 낡은 버스가 첫 골목에 섰어요. 할머니의 선풍기가 다시 돌자 다음 집에서도 손을 흔듭니다.", "counts": {"craft": 30, "volunteer": 23, "farm": 16}, "stats": {"craft": 82, "manner": 60}, "hidden": true},
+  {"id": "seedvault", "title": "씨앗 금고지기", "text": "농장에서 적어 둔 생육 일지를 씨앗 봉투마다 붙였어요. 사라진 줄 알았던 품종이 이듬해 다시 싹을 틔웠습니다.", "counts": {"farm": 34, "study": 26, "craft": 12}, "stats": {"grit": 82, "smarts": 65}, "hidden": true},
+  {"id": "racketlab", "title": "라켓 연구소장", "text": "부러진 라켓의 손잡이를 고치다가 새 모형을 만들었어요. 동네 선수들이 저마다 손에 맞는 라켓을 주문합니다.", "counts": {"lesson": 26, "craft": 27, "league": 14}, "stats": {"skill": 72, "craft": 75}, "hidden": true},
+  {"id": "supper", "title": "골목의 심야 식당", "text": "야근을 마친 이웃에게 건넨 한 그릇이 시작이었어요. 희범이 식당의 마지막 주문은 늘 “오늘도 그거 주세요”입니다.", "counts": {"meal": 32, "volunteer": 28, "farm": 24}, "stats": {"manner": 75, "grit": 63}, "hidden": true},
+  {"id": "rescue", "title": "산악 구조대장", "text": "해가 넘어가기 전 마지막 등산객을 찾았어요. 무전기에서 전원 귀환이라는 대답이 돌아옵니다.", "counts": {"run": 32, "safety": 30, "volunteer": 15}, "stats": {"stamina": 85, "courage": 80}, "hidden": true},
+  {"id": "chalk", "title": "작은 학교의 교장", "text": "폐교 안내문을 떼고 첫 수업 시간을 써 붙였어요. 동네 어른들도 작은 의자를 끌어와 앉습니다.", "counts": {"teach": 26, "study": 30, "volunteer": 20}, "stats": {"smarts": 80, "manner": 78}, "hidden": true},
+  {"id": "comeback", "title": "재기의 더블스 주장", "text": "결승 매치 포인트에서 동료에게 서브 코스를 알려 줬어요. 먼저 넘어졌던 희범이가 이번엔 둘이서 일어섰습니다.", "counts": {"league": 32, "lesson": 23, "instruct": 16}, "stats": {"skill": 83, "stamina": 62}, "hidden": true},
+  {"id": "closedgym", "title": "불 꺼진 체육관", "text": "회원에게 가르칠 동작을 혼자서만 연습했어요. 개장 첫날 텅 빈 사물함에 열쇠가 그대로 걸려 있습니다.", "counts": {"run": 40, "instruct": 4}, "stats": {}, "cap": {"instruct": 5}},
+  {"id": "unsold", "title": "창고에 쌓인 수확", "text": "밭에서는 풍년이었지만 출하 날짜를 놓쳤어요. 농장 창고에 상자만 천장까지 쌓였습니다.", "counts": {"farm": 43, "rest": 31}, "stats": {}, "cap": {"study": 2}},
+  {"id": "spareparts", "title": "멈춘 발명품", "text": "부품을 사서 조립하고 다시 뜯는 동안 설명서는 첫 장 그대로였어요. 시연 날에도 스위치는 켜지지 않았습니다.", "counts": {"craft": 37, "farm": 15}, "stats": {}, "cap": {"study": 2}},
+  {"id": "emptystand", "title": "관중 없는 결승", "text": "경기 수를 채우느라 기본기를 배울 날을 계속 미뤘어요. 예선이 끝난 뒤 빈 관중석을 보며 혼자 공을 주웠습니다.", "counts": {"league": 43, "run": 15}, "stats": {}, "cap": {"lesson": 2}},
+  {"id": "closedbook", "title": "접수 못 한 시험", "text": "기출문제집에는 풀이가 빼곡한데 원서의 마지막 칸은 비어 있었어요. 접수 창구에 도착했을 때 셔터가 내려갔습니다.", "counts": {"safety": 42, "rest": 30}, "stats": {}, "cap": {"study": 2}},
+  {"id": "emptyclass", "title": "수강생 없는 교실", "text": "같은 시범을 몇 번이고 되풀이했어요. 마지막 회원이 남긴 새로운 기술을 배우고 싶다는 쪽지를 뒤늦게 읽었습니다.", "counts": {"teach": 36, "run": 16}, "stats": {}, "cap": {"lesson": 2}},
+  {"id": "coldmeal", "title": "식어 버린 저녁상", "text": "매일 한 상씩 차렸지만 누구를 초대할지 생각하지 못했어요. 마지막 접시를 내놓자 처음 담은 국은 벌써 차가웠습니다.", "counts": {"meal": 44, "farm": 17}, "stats": {}, "cap": {"volunteer": 2}},
+  {"id": "blankstage", "title": "리허설로 끝난 무대", "text": "발표 자료와 소품은 다 준비됐어요. 연습만 하다 발표 신청 버튼을 누르지 못해 무대 뒤에서 조명이 꺼지는 걸 봤습니다.", "counts": {"study": 34, "craft": 27}, "stats": {}, "cap": {"safety": 2}},
+];
+
 export const ENDINGS = {
+  ...Object.fromEntries(SPECIAL_ENDINGS.map(e => [e.id, {
+    title: e.title, text: t(e.text), hidden: !!e.hidden, bad: !e.hidden,
+    group: e.hidden ? '히든 엔딩' : '배드 엔딩',
+  }])),
   pro: { title: '실업팀 탁구선수', icon: '🏓', group: '탁구', text: t('레슨에서 익힌 기술을 리그전에서 보여 주고 실업팀에 입단했어요.') },
   coach: { title: '탁구 코치', icon: '📋', group: '탁구', text: t('처음 서브도 못 넣던 회원이 첫 승리를 따냈어요. 가장 먼저 희범이에게 달려왔어요.') },
   gym: { title: '탁구장 관장', icon: '🏟️', group: '탁구', text: t('배우고 가르치고 리그를 뛰며 모은 돈으로 동네 탁구장을 열었어요.') },
@@ -166,6 +189,9 @@ export const isTableTennisPro = s => s.counts.league >= 8 && s.counts.lesson >= 
 export function decideEnding(s, rng = Math.random) {
   if (s.stats.manner <= 15) return 'runaway';
   if (s.burnout >= BURNOUT_LIMIT) return 'burnout';
+  const special = s.followClue && SPECIAL_ENDINGS.find(e => countsOk(s, e) && meets(s, e.stats)
+    && Object.entries(e.cap || {}).every(([key, max]) => (s.counts[key] || 0) <= max));
+  if (special) return special.id;
   const { lesson = 0, teach = 0, league = 0 } = s.counts;
   const visits = lesson + teach + league;
   if (teach >= 8 && lesson >= 8 && league >= 8 && s.money >= 300000) return 'gym';

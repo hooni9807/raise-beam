@@ -1,6 +1,6 @@
-import * as L from './logic.js?v=fitness-route';
+import * as L from './logic.js?v=secret-stories';
 import { playPrologue } from './prologue.js?v=birth1996';
-import { openTutorial } from './tutorial.js?v=fitness-route';
+import { openTutorial } from './tutorial.js?v=secret-stories';
 
 const KEY = 'raise-beam-v3';
 const DEX_KEY = 'raise-beam-endings';
@@ -143,6 +143,8 @@ function render() {
     </button>`).join('');
 
   $('slots').innerHTML = [0, 1, 2].map((i) => `<li class="${s.today[i] ? 'done' : ''}">${s.today[i] || ''}</li>`).join('');
+  $('lastClue').hidden = s.day !== L.DAYS || !!s.ending;
+  $('followClue').checked = !!s.followClue;
   $('endDay').disabled = !!s.ending;
   $('endDay').textContent = s.day >= L.DAYS ? '엔딩 보기' : '하루 마치기';
 
@@ -353,6 +355,7 @@ function onMatch() {
   afterChange(res);
 }
 
+$('followClue').onchange = e => { state.followClue = e.target.checked; save(); };
 $('endDay').addEventListener('click', () => {
   if (state.day === L.DAYS && L.canChooseLife(state)) { openLetters(); return; }
   if (state.ap > 0 && !confirm(`아직 일정이 ${state.ap}칸 남았어요. 그래도 하루를 마칠까요?`)) return;
@@ -394,7 +397,7 @@ function showEnding() {
   }
   jingle(e.bad ? [392, 349, 330, 262] : state.ending === 'champion' ? [523, 659, 784, 1046, 1318] : [523, 659, 784, 1046]);
   say(e.bad ? '…' : '키워 줘서 고마워!');
-  const badge = e.bad ? '<p class="m-badge bad">배드 엔딩</p>' : '<p class="m-badge">직업 엔딩</p>';
+  const badge = e.bad ? '<p class="m-badge bad">배드 엔딩</p>' : `<p class="m-badge">${e.hidden ? '히든 엔딩 발견' : '직업 엔딩'}</p>`;
   modal(`${swapImg(state.ending, 'm-art')}<p class="m-hint">그림을 누르면 표정이 바뀌어요</p>${badge}<p class="m-title">${endingTitle(state.ending)}</p>
     <p class="m-sub">${L.COUNTRIES[state.country]?.flag || ''} ${esc(state.name)}, ${L.ageOf(L.DAYS)}살</p>
     <p class="m-text">${e.text(state)}</p>
