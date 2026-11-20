@@ -1,5 +1,5 @@
 import * as L from './logic.js?v=life-letters';
-import { playPrologue } from './prologue.js?v=skip';
+import { playPrologue } from './prologue.js?v=birth1996';
 
 const KEY = 'raise-beam-v3';
 const DEX_KEY = 'raise-beam-endings';
