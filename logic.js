@@ -49,7 +49,7 @@ export const statCap = (day) => STAT_CAPS[stageIndex(Math.min(day, DAYS))];
 export const CLUB = {
   lesson: { name: '레슨 받기', desc: '레슨비 2만원 · 탁구와 체력 훈련', icon: '🏓', cost: 20000, cond: -12, gain: { skill: 3, stamina: 1 }, line: '오늘 서브 완전 잘 들어갔어!' },
   teach: { name: '다른 사람 가르치기', icon: '📋', cond: -8, gain: { manner: 2, skill: 1 }, desc: '회원 지도 · 지도비 1만원', pay: 10000, line: '처음 온 회원이 드디어 서브에 성공했어!' },
-  league: { name: '리그전 출전', icon: '🏓', cond: -16, gain: { stamina: 2, skill: 1 }, desc: '한 경기 출전 · 결과에 따라 랭킹 포인트 획득' },
+  league: { name: '리그전 출전', icon: '🏆', cond: -16, gain: { stamina: 2, skill: 1 }, desc: '한 경기 출전 · 결과에 따라 랭킹 포인트 획득' },
 };
 export const clubVisits = s => Object.keys(CLUB).reduce((n, k) => n + (s.counts[k] || 0), 0);
 export const ACTIONS = {

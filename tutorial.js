@@ -1,4 +1,4 @@
-import { ACTIONS, AP_PER_DAY, newGame, doAction, endDay } from './logic.js?v=housework';
+import { ACTIONS, AP_PER_DAY, newGame, doAction, endDay } from './logic.js?v=league-trophy';
 
 const SEEN = 'raise-beam-tutorial-v1';
 const activities = ['study', 'run', 'rest'];
