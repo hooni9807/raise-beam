@@ -47,21 +47,21 @@ export const STAT_CAPS = [30, 55, 80, 100];
 export const statCap = (day) => STAT_CAPS[stageIndex(Math.min(day, DAYS))];
 
 export const CLUB = {
-  lesson: { name: '레슨 받기', faces: ['determined', 'focus'], desc: '레슨비 2만원 · 탁구와 체력 훈련', icon: '🏓', cost: 20000, cond: -12, gain: { skill: 3, stamina: 1 }, line: '오늘 서브 완전 잘 들어갔어!' },
-  teach: { name: '다른 사람 가르치기', faces: ['praised', 'peace'], icon: '📋', cond: -8, gain: { manner: 2, skill: 1 }, desc: '회원 지도 · 지도비 1만원', pay: 10000, line: '처음 온 회원이 드디어 서브에 성공했어!' },
+  lesson: { name: '레슨 받기', desc: '레슨비 2만원 · 탁구와 체력 훈련', icon: '🏓', cost: 20000, cond: -12, gain: { skill: 3, stamina: 1 }, line: '오늘 서브 완전 잘 들어갔어!' },
+  teach: { name: '다른 사람 가르치기', icon: '📋', cond: -8, gain: { manner: 2, skill: 1 }, desc: '회원 지도 · 지도비 1만원', pay: 10000, line: '처음 온 회원이 드디어 서브에 성공했어!' },
   league: { name: '리그전 출전', icon: '🏓', cond: -16, gain: { stamina: 2, skill: 1 }, desc: '한 경기 출전 · 결과에 따라 랭킹 포인트 획득' },
 };
 export const clubVisits = s => Object.keys(CLUB).reduce((n, k) => n + (s.counts[k] || 0), 0);
 export const ACTIONS = {
-  meal: { name: '밥 먹이기', faces: ['bite', 'relaxed'], icon: '🍚', cost: 8000, cond: 15, gain: { stamina: 2 }, line: '냠냠, 든든해!' },
+  meal: { name: '밥 먹이기', icon: '🍚', cost: 8000, cond: 15, gain: { stamina: 2 }, line: '냠냠, 든든해!' },
 
-  study: { name: '공부', faces: ['focus'], icon: '📚', cost: 10000, cond: -10, gain: { smarts: 3 }, line: '오늘 배운 거 다 기억해!' },
-  run: { name: '운동', faces: ['victory', 'determined'], icon: '🏃', cond: -10, gain: { stamina: 3 }, line: '땀 흘리니까 개운해' },
-  safety: { name: '고시 준비', faces: ['focus', 'determined'], icon: '📝', cond: -10, gain: { courage: 3 }, line: '어려운 기출문제도 끝까지 풀었어!' },
-  farm: { name: '농장 알바가기', faces: ['determined', 'surprised'], icon: '🐄', cond: -15, gain: { grit: 2, stamina: 1 }, earn: true, line: '송아지 밥 주고 알바비 받았어!' },
-  volunteer: { name: '봉사', faces: ['praised', 'peace'], icon: '🤝', cond: -6, gain: { manner: 3 }, line: '도와드려서 뿌듯해' },
-  craft: { name: '공작 교실', faces: ['victory', 'praised'], icon: '🔧', cost: 10000, cond: -8, gain: { craft: 3, smarts: 1 }, line: '전구에 불 들어왔어!' },
-  rest: { name: '쉬기', faces: ['doze', 'relaxed'], icon: '🛋️', cond: 25, gain: {}, line: '잠깐 낮잠 잘게…' },
+  study: { name: '공부', icon: '📚', cost: 10000, cond: -10, gain: { smarts: 3 }, line: '오늘 배운 거 다 기억해!' },
+  run: { name: '운동', icon: '🏃', cond: -10, gain: { stamina: 3 }, line: '땀 흘리니까 개운해' },
+  safety: { name: '고시 준비', icon: '📝', cond: -10, gain: { courage: 3 }, line: '어려운 기출문제도 끝까지 풀었어!' },
+  farm: { name: '농장 알바가기', icon: '🐄', cond: -15, gain: { grit: 2, stamina: 1 }, earn: true, line: '송아지 밥 주고 알바비 받았어!' },
+  volunteer: { name: '봉사', icon: '🤝', cond: -6, gain: { manner: 3 }, line: '도와드려서 뿌듯해' },
+  craft: { name: '공작 교실', icon: '🔧', cost: 10000, cond: -8, gain: { craft: 3, smarts: 1 }, line: '전구에 불 들어왔어!' },
+  rest: { name: '쉬기', icon: '🛋️', cond: 25, gain: {}, line: '잠깐 낮잠 잘게…' },
 };
 
 // 매일 바뀌는 오늘의 도전. 탁구 대회는 랭킹 포인트도 준다.
@@ -233,9 +233,38 @@ export function newGame({ country = null, gender = 'male' } = {}, rng = Math.ran
 
 const condFactor = (c) => (c < 30 ? 0.5 : c >= 70 ? 1.2 : 1);
 
-// 이미 기록하는 활동 횟수로 표정을 바꾸므로 게임의 난수나 저장 형식에 영향을 주지 않는다.
-const turnFace = (faces, turn) => faces[(turn - 1) % faces.length];
-const matchFace = (win, turn) => turnFace(win ? ['peace', 'victory'] : ['pout', 'defeat'], turn);
+// 숫자는 같은 상황에서 촬영한 사진을 바탕으로 그린 어른 남자 희범이의 개별 초상화다.
+// stages는 기존 나이별 표정, adult는 남자 어른범의 상황별 순서다.
+const REACTIONS = {
+  meal:      { stages: ['bite', 'relaxed'], adult: [13, 8, 54, 12, 37, 10, 9, 19, 'bite', 'relaxed'] },
+  rest:      { stages: ['doze', 'relaxed'], adult: [14, 26, 29, 36, 15, 27, 28, 'doze', 'relaxed'] },
+  study:     { stages: ['focus'], adult: [49, 6, 50, 7, 57, 'focus'] },
+  safety:    { stages: ['focus', 'determined'], adult: [38, 49, 39, 'focus', 'determined'] },
+  run:       { stages: ['victory', 'determined'], adult: [17, 42, 16, 44, 18, 'victory', 'determined'] },
+  farm:      { stages: ['determined', 'surprised'], adult: [17, 16, 18, 'determined', 'surprised'] },
+  volunteer: { stages: ['praised', 'peace'], adult: [3, 47, 2, 48, 'peace', 'praised'] },
+  craft:     { stages: ['victory', 'praised'], adult: [55, 57, 56, 'victory', 'praised'] },
+  lesson:    { stages: ['determined', 'focus'], adult: [51, 59, 52, 60, 53, 61, 58, 'determined', 'focus'] },
+  teach:     { stages: ['praised', 'peace'], adult: [20, 22, 11, 21, 43, 23, 'praised', 'peace'] },
+  win:       { stages: ['peace', 'victory'], adult: [46, 62, 45, 47, 48, 'peace', 'victory'] },
+  loss:      { stages: ['pout', 'defeat'], adult: [40, 57, 41, 'pout', 'defeat'] },
+  talk:      { stages: ['yawn'], adult: [2, 5, 24, 4, 0, 25, 1, 38, 3, 'yawn'] },
+  tired:     { stages: ['doze'], adult: [29, 30, 35, 31, 36, 32, 26, 33, 34, 'doze'] },
+  surprised: { stages: ['surprised'], adult: [62, 9, 'surprised'] },
+  sick:      { stages: ['sick'], adult: ['sick', 36] },
+  praised:   { stages: ['praised'], adult: [4, 48, 'praised'] },
+  peace:     { stages: ['peace'], adult: [45, 46, 'peace'] },
+  pout:      { stages: ['pout'], adult: [41, 40, 'pout'] },
+  defeat:    { stages: ['defeat'], adult: ['defeat', 39] },
+};
+
+export function reactionFace(s, occasion, turn) {
+  const pool = REACTIONS[occasion];
+  const adult = s.gender !== 'female' && stageOf(s.day).id === 'adult';
+  const faces = adult ? pool.adult : pool.stages;
+  const face = faces[(turn - 1) % faces.length];
+  return typeof face === 'number' ? 'photo' + String(face).padStart(2, '0') : face;
+}
 
 // 성공하면 행동 결과와 그에 맞는 표정을 돌려준다.
 export function doAction(s, key, rng = Math.random) {
@@ -254,7 +283,7 @@ export function doAction(s, key, rng = Math.random) {
   }
   if (a.cost) { s.money -= a.cost; deltas['돈'] = -a.cost; }
   const turn = (s.counts[key] || 0) + 1;
-  let face;
+  let occasion = key;
   let line = a.line;
   if (a.pay) { s.money += a.pay; deltas['돈'] = a.pay; }
   if (key === 'league') {
@@ -262,7 +291,7 @@ export function doAction(s, key, rng = Math.random) {
     const points = (win ? 900 : 150) * STAGES[stageIndex(s.day)].mult;
     s.points += points;
     if (win) s.ttWins++;
-    face = matchFace(win, turn);
+    occasion = win ? 'win' : 'loss';
     deltas['포인트'] = points;
     line = win ? '리그에서 이겼어! 마지막 서브가 통했어.' : '리그에서 졌어. 다음엔 리시브를 바꿔 볼래.';
   }
@@ -275,7 +304,7 @@ export function doAction(s, key, rng = Math.random) {
   s.counts[key] = turn;
   s.today.push(a.icon);
   tidy(s);
-  return { face: face ?? turnFace(a.faces, turn), line: f < 1 && key !== 'league' ? '조금 힘들어…' : line, deltas };
+  return { face: reactionFace(s, occasion, turn), line: f < 1 && key !== 'league' ? '조금 힘들어…' : line, deltas };
 }
 
 export function doMatch(s, rng = Math.random) {
@@ -293,7 +322,7 @@ export function doMatch(s, rng = Math.random) {
   s.ap -= 2; s.matchDone = true; s.today.push(mt.icon, mt.icon);
   tidy(s);
   return {
-    win, face: matchFace(win, s.day),
+    win, face: reactionFace(s, win ? 'win' : 'loss', s.day),
     line: win ? '상 받았어! 봤지?' : '다음엔 꼭 이길 거야',
     deltas: { ...(points && { 포인트: Math.round(points) }), ...(prize && { 돈: prize }), ...(win && { [statName(mt.stat)]: 3 }), 컨디션: -15 },
   };
@@ -317,7 +346,7 @@ export function endDay(s, rng = Math.random) {
   if (rng() < 0.35) {
     const e = EVENTS[Math.floor(rng() * EVENTS.length)];
     e.apply(s, m);
-    event = { face: e.face, title: e.title, text: e.text };
+    event = { face: reactionFace(s, e.face, s.day), title: e.title, text: e.text };
   }
   tidy(s);
   if (s.day > DAYS) s.ending = decideEnding(s, rng);

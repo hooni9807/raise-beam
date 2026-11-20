@@ -25,6 +25,41 @@ for (const root of ['img', 'img/female']) {
     for (const face of ['focus', 'determined', 'praised', 'victory', 'defeat', 'sick', 'relaxed', 'surprised', 'bite', 'pout', 'peace', 'doze']) {
       checkArt(`situations/${stage.id}/${face}`);
     }
+    const adultPhotos = root === 'img' && stage.id === 'adult';
+    const variants = adultPhotos
+      ? Array.from({ length: 63 }, (_, i) => 'photo' + String(i).padStart(2, '0'))
+      : [];
+    const reached = new Set();
+    const state = L.newGame({ gender: root === 'img' ? 'male' : 'female' });
+    state.day = stage.from;
+    // 모든 초상화가 실제 행동·경기·대화·이벤트에서 선택 가능한지 확인한다.
+    const collect = face => {
+      if (face !== 'yawn') checkArt(`situations/${stage.id}/${face}`);
+      if (!adultPhotos) assert.ok(!face.startsWith('photo'));
+      reached.add(face);
+    };
+    for (let turn = 1; turn <= 16; turn++) {
+      state.day = stage.from;
+      for (const key of [...Object.keys(L.ACTIONS), ...Object.keys(L.CLUB)]) {
+        Object.assign(state, { ap: 3, money: 100000, cond: 80 });
+        state.counts[key] = turn - 1;
+        collect(L.doAction(state, key, () => 0).face);
+      }
+      for (const win of [true, false]) {
+        Object.assign(state, { day: stage.from + turn - 1, matchDone: false, ap: 3, cond: 80 });
+        collect(L.doMatch(state, () => win ? 0 : 0.99).face);
+      }
+      for (const key of ['talk', 'tired']) collect(L.reactionFace(state, key, turn));
+      for (let event = 0; event < 9; event++) {
+        // 지정된 날에 이벤트가 발생하도록 매치·발생 여부·이벤트 인덱스를 고정한다.
+        state.day = stage.from + turn - 1;
+        const rolls = [0, 0, (event + 0.5) / 9];
+        const result = L.endDay(state, () => rolls.shift());
+        collect(result.event.face);
+      }
+    }
+    for (const face of variants) assert.ok(reached.has(face), `unreachable: ${stage.id}/${face}`);
+
   }
   for (const id of L.ENDING_IDS) {
     checkArt(`endings/${id}`);

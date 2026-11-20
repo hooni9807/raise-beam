@@ -1,6 +1,6 @@
-import * as L from './logic.js?v=photo-expressions';
+import * as L from './logic.js?v=photo-album';
 import { playPrologue } from './prologue.js?v=birth1996';
-import { openTutorial } from './tutorial.js?v=photo-expressions';
+import { openTutorial } from './tutorial.js?v=photo-album';
 
 const KEY = 'raise-beam-v3';
 const DEX_KEY = 'raise-beam-endings';
@@ -49,6 +49,7 @@ const stageImg = (stage, yawn) => `${imageRoot()}/stages/${yawn ? 'yawn/' : ''}$
 const endingImg = (id, yawn) => `${imageRoot()}/endings/${yawn ? 'yawn/' : ''}${id}.webp`;
 const situationImg = (stage, face) => `${imageRoot()}/situations/${stage}/${face}.webp`;
 let reaction = null;
+let conversationTurn = 0;
 let reactionTimer;
 function react(face, ms = 3200) {
   clearTimeout(reactionTimer);
@@ -192,9 +193,11 @@ function say(text) { $('bubble').textContent = text; }
 // 캐릭터를 누르면 컨디션에 맞게 반응
 $('sprite').addEventListener('click', () => {
   if (state.ending) return;
-  say(state.cond < TIRED ? '너무 졸려… 좀 쉬고 싶어' : '하암… 왜 불러?');
+  const tired = state.cond < TIRED;
+  const face = L.reactionFace(state, tired ? 'tired' : 'talk', ++conversationTurn);
+  say(tired ? '눈이 자꾸 감겨… 잠깐만 쉴게.' : face === 'yawn' ? '하암… 왜 불러?' : '응? 나 불렀어?');
   beep(330, 0.12);
-  react(state.cond < TIRED ? 'doze' : 'yawn', 1800); render();
+  react(face, 2400); render();
 });
 // 하품 그림 미리 불러 두기 (바뀔 때 깜빡이지 않게)
 for (const st of L.STAGES) new Image().src = stageImg(st.id, true);
@@ -295,6 +298,7 @@ $('setupForm').addEventListener('submit', (e) => {
   const f = e.target, sound = state ? state.sound : true;
   clearTimeout(reactionTimer); reaction = null;
   state = L.newGame({ gender: f.gender.value });
+  conversationTurn = 0;
   state.sound = sound;
   state.started = true;
   $('setup').close();
@@ -353,12 +357,16 @@ $('endDay').addEventListener('click', () => {
   const { event, grew, tired } = L.endDay(state);
   beep(440, 0.1);
   if (tired && !state.ending) {
-    modal(`<img class="m-art small" src="${stageImg(L.stageOf(state.day).id, true)}" alt=""><p class="m-title">너무 지친 하루였어요</p><p class="m-text">짜증이 늘어 인성이 떨어졌어요. 지친 날이 ${L.BURNOUT_LIMIT}번이 되면 번아웃 엔딩이에요. (지금 ${state.burnout}번)</p>`, '쉬게 해 줄게');
+    const stage = L.stageOf(state.day).id;
+    const tiredArt = state.gender !== 'female' && stage === 'adult'
+      ? modalFace(L.reactionFace(state, 'tired', state.day))
+      : `<img class="m-art small" src="${stageImg(stage, true)}" alt="">`;
+    modal(`${tiredArt}<p class="m-title">너무 지친 하루였어요</p><p class="m-text">짜증이 늘어 인성이 떨어졌어요. 지친 날이 ${L.BURNOUT_LIMIT}번이 되면 번아웃 엔딩이에요. (지금 ${state.burnout}번)</p>`, '쉬게 해 줄게');
   }
   if (grew && !state.ending) {
     const st = L.stageOf(state.day);
     jingle([523, 659, 784]);
-    modal(`${modalFace('praised')}<p class="m-title">${josa(st.name, '이', '가')} 됐어요!</p><p class="m-text">${L.SON.nick}이가 쑥 자랐어요. 이제 스탯이 ${L.statCap(state.day)}까지 자랄 수 있어요.</p>`, '대견하다');
+    modal(`${modalFace(L.reactionFace(state, 'praised', state.day))}<p class="m-title">${josa(st.name, '이', '가')} 됐어요!</p><p class="m-text">${L.SON.nick}이가 쑥 자랐어요. 이제 스탯이 ${L.statCap(state.day)}까지 자랄 수 있어요.</p>`, '대견하다');
   }
   if (event && !state.ending) modal(`${modalFace(event.face)}<p class="m-title">${event.title}</p><p class="m-text">${event.text}</p>`);
   L.newUnlocks(state);
