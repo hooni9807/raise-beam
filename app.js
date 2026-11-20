@@ -28,13 +28,34 @@ function save() {
 }
 
 /* ---------- 희범이 그림 (나이대 4장, 엔딩 24장) ---------- */
-// 입힌 옷과 소품은 그림 위 스티커로 보여 준다
-const stageImg = (stage) => `img/stages/${stage}.webp`;
-const endingImg = (id) => `img/endings/${id}.webp`;
-function portrait(stage, outfit, acc) {
+// 기본은 표정이 다양한 그림, 하품하는 그림(yawn/)은 상황에 따라 바꿔 보여 준다:
+// 컨디션이 낮을 때, 쉬기를 했을 때, 캐릭터를 눌렀을 때 잠깐. 엔딩 그림은 누르면 서로 바뀐다.
+const TIRED = 35;
+const stageImg = (stage, yawn) => `img/stages/${yawn ? 'yawn/' : ''}${stage}.webp`;
+const endingImg = (id, yawn) => `img/endings/${yawn ? 'yawn/' : ''}${id}.webp`;
+let yawnUntil = 0;
+const isYawning = () => state.cond < TIRED || Date.now() < yawnUntil;
+function yawn(ms = 1800) {
+  yawnUntil = Date.now() + ms;
+  render();
+  setTimeout(render, ms + 30);
+}
+// 누르면 표정이 바뀌는 그림 (엔딩 화면, 도감)
+const swapImg = (id, cls = '', size = 384) =>
+  `<button type="button" class="swap ${cls}" aria-label="표정 바꾸기"><img src="${endingImg(id)}" data-alt="${endingImg(id, true)}" alt="" width="${size}" height="${size}" loading="lazy"></button>`;
+document.addEventListener('click', (e) => {
+  const img = e.target.closest('.swap')?.querySelector('img');
+  if (!img) return;
+  const now = img.getAttribute('src');
+  img.setAttribute('src', img.dataset.alt);
+  img.dataset.alt = now;
+  beep(760, 0.05);
+});
+
+function portrait(stage, outfit, acc, yawning) {
   const item = (id) => L.GALLERY.find((g) => g.id === id);
-  const stickers = [outfit !== 'basic' && item(outfit)?.icon, acc && item(acc)?.icon].filter(Boolean);
-  return `<img src="${stageImg(stage)}" alt="" width="384" height="384">` +
+  const stickers = [outfit !== 'basic' && item(outfit)?.icon, acc && item(acc)?.icon, yawning && '💤'].filter(Boolean);
+  return `<img src="${stageImg(stage, yawning)}" alt="" width="384" height="384">` +
     stickers.map((e, i) => `<span class="sticker s${i}" aria-hidden="true">${e}</span>`).join('');
 }
 
@@ -76,8 +97,8 @@ function render() {
     <span class="chip">💰 <b>${s.money.toLocaleString()}</b></span>
     <span class="chip">🏅 <b>${s.awards}</b></span>`;
   $('ribbon').textContent = s.ending ? '엔딩' : `${s.day}일째, ${L.dateLabel(s.day)}, ${L.ageOf(s.day)}살`;
-  $('sprite').innerHTML = portrait(stage.id, s.outfit, s.acc);
-  $('sprite').setAttribute('aria-label', `${s.name}, ${stage.name}`);
+  $('sprite').innerHTML = portrait(stage.id, s.outfit, s.acc, isYawning());
+  $('sprite').setAttribute('aria-label', `${s.name}, ${stage.name}. 눌러서 말 걸기`);
   $('stageTag').textContent = stage.name;
   $('sonName').textContent = s.name;
   $('tags').innerHTML = `<span class="tag">${country.flag} ${country.name}</span>` +
@@ -149,7 +170,7 @@ function render() {
   $('dexCount').textContent = `${seen.length}/${L.ENDING_IDS.length}`;
   $('dex').innerHTML = L.ENDING_IDS.map((id) => {
     const e = L.ENDINGS[id], has = seen.includes(id);
-    return `<div class="dex-item ${has ? '' : 'locked'} ${e.bad ? 'bad' : ''}">${has ? `<img src="${endingImg(id)}" alt="" width="384" height="384" loading="lazy">` : '<span aria-hidden="true">❔</span>'}${has ? e.title : `${e.bad ? '배드 엔딩' : e.group || '직업'} ???`}</div>`;
+    return `<div class="dex-item ${has ? '' : 'locked'} ${e.bad ? 'bad' : ''}">${has ? swapImg(id, 'dex-img') : '<span aria-hidden="true">❔</span>'}${has ? e.title : `${e.bad ? '배드 엔딩' : e.group || '직업'} ???`}</div>`;
   }).join('');
 
   $('settingsForm').sound.checked = s.sound;
@@ -157,6 +178,16 @@ function render() {
 }
 
 function say(text) { $('bubble').textContent = text; }
+// 캐릭터를 누르면 잠깐 하품
+$('sprite').addEventListener('click', () => {
+  if (state.ending) return;
+  say(state.cond < TIRED ? '너무 졸려… 좀 쉬고 싶어' : '하암… 왜 불러?');
+  beep(330, 0.12);
+  yawn();
+});
+// 하품 그림 미리 불러 두기 (바뀔 때 깜빡이지 않게)
+for (const st of L.STAGES) new Image().src = stageImg(st.id, true);
+
 function hop() { const el = $('sprite'); el.classList.remove('hop'); void el.offsetWidth; el.classList.add('hop'); }
 
 function floats(deltas) {
@@ -285,6 +316,7 @@ $('actions').addEventListener('click', (e) => {
   const res = L.doAction(state, b.dataset.act);
   if (!res.error) beep(520 + Math.random() * 300);
   afterChange(res);
+  if (!res.error && b.dataset.act === 'rest') { say('하아암… 잘 잤다'); yawn(2200); }
   if (!res.error && state.cond <= 15) toast(`${L.SON.nick}이가 많이 지쳤어요. 이대로 하루를 마치면 지친 날로 기록돼요.`);
 });
 
@@ -327,7 +359,7 @@ function showEnding() {
   jingle(e.bad ? [392, 349, 330, 262] : state.ending === 'champion' ? [523, 659, 784, 1046, 1318] : [523, 659, 784, 1046]);
   say(e.bad ? '…' : '키워 줘서 고마워!');
   const badge = e.bad ? '<p class="m-badge bad">배드 엔딩</p>' : '<p class="m-badge">직업 엔딩</p>';
-  modal(`<img class="m-art" src="${endingImg(state.ending)}" alt="${e.title}이 된 희범" width="384" height="384">${badge}<p class="m-title">${e.title}</p>
+  modal(`${swapImg(state.ending, 'm-art')}<p class="m-hint">그림을 누르면 표정이 바뀌어요</p>${badge}<p class="m-title">${e.title}</p>
     <p class="m-sub">${L.COUNTRIES[state.country].flag} ${esc(state.name)}, ${L.ageOf(L.DAYS)}살</p>
     <p class="m-text">${e.text(state)}</p>
     <ul class="m-list stats-end">${L.STATS.map((t) => `<li>${t.name}<b>${state.stats[t.key]}</b></li>`).join('')}<li>받은 상장<b>${state.awards}개</b></li><li>지친 날<b>${state.burnout}번</b></li></ul>`,
