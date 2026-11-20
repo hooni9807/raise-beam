@@ -47,21 +47,21 @@ export const STAT_CAPS = [30, 55, 80, 100];
 export const statCap = (day) => STAT_CAPS[stageIndex(Math.min(day, DAYS))];
 
 export const CLUB = {
-  lesson: { name: '레슨 받기', desc: '레슨비 2만원 · 탁구와 체력 훈련', icon: '🏓', cost: 20000, cond: -12, gain: { skill: 3, stamina: 1 }, line: '오늘 서브 완전 잘 들어갔어!' },
-  teach: { name: '다른 사람 가르치기', icon: '📋', cond: -8, gain: { manner: 2, skill: 1 }, desc: '회원 지도 · 지도비 1만원', pay: 10000, line: '처음 온 회원이 드디어 서브에 성공했어!' },
+  lesson: { name: '레슨 받기', faces: ['determined', 'focus'], desc: '레슨비 2만원 · 탁구와 체력 훈련', icon: '🏓', cost: 20000, cond: -12, gain: { skill: 3, stamina: 1 }, line: '오늘 서브 완전 잘 들어갔어!' },
+  teach: { name: '다른 사람 가르치기', faces: ['praised', 'peace'], icon: '📋', cond: -8, gain: { manner: 2, skill: 1 }, desc: '회원 지도 · 지도비 1만원', pay: 10000, line: '처음 온 회원이 드디어 서브에 성공했어!' },
   league: { name: '리그전 출전', icon: '🏓', cond: -16, gain: { stamina: 2, skill: 1 }, desc: '한 경기 출전 · 결과에 따라 랭킹 포인트 획득' },
 };
 export const clubVisits = s => Object.keys(CLUB).reduce((n, k) => n + (s.counts[k] || 0), 0);
 export const ACTIONS = {
-  meal: { name: '밥 먹이기', icon: '🍚', cost: 8000, cond: 15, gain: { stamina: 2 }, line: '냠냠, 든든해!' },
+  meal: { name: '밥 먹이기', faces: ['bite', 'relaxed'], icon: '🍚', cost: 8000, cond: 15, gain: { stamina: 2 }, line: '냠냠, 든든해!' },
 
-  study: { name: '공부', icon: '📚', cost: 10000, cond: -10, gain: { smarts: 3 }, line: '오늘 배운 거 다 기억해!' },
-  run: { name: '운동', icon: '🏃', cond: -10, gain: { stamina: 3 }, line: '땀 흘리니까 개운해' },
-  safety: { name: '고시 준비', icon: '📝', cond: -10, gain: { courage: 3 }, line: '어려운 기출문제도 끝까지 풀었어!' },
-  farm: { name: '농장 알바가기', icon: '🐄', cond: -15, gain: { grit: 2, stamina: 1 }, earn: true, line: '송아지 밥 주고 알바비 받았어!' },
-  volunteer: { name: '봉사', icon: '🤝', cond: -6, gain: { manner: 3 }, line: '도와드려서 뿌듯해' },
-  craft: { name: '공작 교실', icon: '🔧', cost: 10000, cond: -8, gain: { craft: 3, smarts: 1 }, line: '전구에 불 들어왔어!' },
-  rest: { name: '쉬기', icon: '🛋️', cond: 25, gain: {}, line: '잠깐 낮잠 잘게…' },
+  study: { name: '공부', faces: ['focus'], icon: '📚', cost: 10000, cond: -10, gain: { smarts: 3 }, line: '오늘 배운 거 다 기억해!' },
+  run: { name: '운동', faces: ['victory', 'determined'], icon: '🏃', cond: -10, gain: { stamina: 3 }, line: '땀 흘리니까 개운해' },
+  safety: { name: '고시 준비', faces: ['focus', 'determined'], icon: '📝', cond: -10, gain: { courage: 3 }, line: '어려운 기출문제도 끝까지 풀었어!' },
+  farm: { name: '농장 알바가기', faces: ['determined', 'surprised'], icon: '🐄', cond: -15, gain: { grit: 2, stamina: 1 }, earn: true, line: '송아지 밥 주고 알바비 받았어!' },
+  volunteer: { name: '봉사', faces: ['praised', 'peace'], icon: '🤝', cond: -6, gain: { manner: 3 }, line: '도와드려서 뿌듯해' },
+  craft: { name: '공작 교실', faces: ['victory', 'praised'], icon: '🔧', cost: 10000, cond: -8, gain: { craft: 3, smarts: 1 }, line: '전구에 불 들어왔어!' },
+  rest: { name: '쉬기', faces: ['doze', 'relaxed'], icon: '🛋️', cond: 25, gain: {}, line: '잠깐 낮잠 잘게…' },
 };
 
 // 매일 바뀌는 오늘의 도전. 탁구 대회는 랭킹 포인트도 준다.
@@ -88,8 +88,8 @@ const EVENTS = [
   { face: 'surprised', title: '할머니 용돈', text: '할머니가 몰래 봉투를 쥐여 주셨어요.', apply: (st) => (st.money += 20000) },
   { face: 'surprised', title: '송아지가 태어났어요', text: '할아버지 농장에서 송아지 출산을 밤새 도왔어요.', apply: (st) => { st.stats.grit += 3; st.cond -= 8; } },
   { face: 'praised', title: '불이야!', text: '옆집 쓰레기통 불을 소화기로 끄고 칭찬을 받았어요.', apply: (st) => { st.stats.courage += 3; st.stats.manner += 1; } },
-  { face: 'praised', title: '선생님 칭찬', text: '담임 선생님이 "질문을 정말 잘한다"고 하셨대요.', apply: (st) => (st.stats.smarts += 3) },
-  { face: 'surprised', title: '솔깃한 투자 권유', text: '"돈 두 배로 불려 줄게"라는 말에 넘어갈 뻔했어요.', apply: (st) => { if (st.stats.smarts < 40) st.money = Math.floor(st.money / 2); else st.stats.smarts += 2; } },
+  { face: 'peace', title: '선생님 칭찬', text: '담임 선생님이 "질문을 정말 잘한다"고 하셨대요.', apply: (st) => (st.stats.smarts += 3) },
+  { face: 'pout', title: '솔깃한 투자 권유', text: '"돈 두 배로 불려 줄게"라는 말에 넘어갈 뻔했어요.', apply: (st) => { if (st.stats.smarts < 40) st.money = Math.floor(st.money / 2); else st.stats.smarts += 2; } },
   { face: 'praised', title: '고장 난 선풍기', text: '드라이버로 뚝딱뚝딱, 선풍기를 직접 고쳤어요.', apply: (st) => (st.stats.craft += 3) },
   { face: 'defeat', title: '친구랑 싸웠어요', text: '분해서 울다가, 먼저 사과하고 화해했어요.', apply: (st) => { st.cond -= 10; st.stats.manner += 2; } },
 ];
@@ -233,7 +233,11 @@ export function newGame({ country = null, gender = 'male' } = {}, rng = Math.ran
 
 const condFactor = (c) => (c < 30 ? 0.5 : c >= 70 ? 1.2 : 1);
 
-// 성공하면 { line, deltas }, 못 하면 { error } 를 돌려준다. state 를 직접 바꾼다.
+// 이미 기록하는 활동 횟수로 표정을 바꾸므로 게임의 난수나 저장 형식에 영향을 주지 않는다.
+const turnFace = (faces, turn) => faces[(turn - 1) % faces.length];
+const matchFace = (win, turn) => turnFace(win ? ['peace', 'victory'] : ['pout', 'defeat'], turn);
+
+// 성공하면 행동 결과와 그에 맞는 표정을 돌려준다.
 export function doAction(s, key, rng = Math.random) {
   const a = ACTIONS[key] || CLUB[key];
   if (s.ending) return { error: '이미 엔딩을 봤어요.' };
@@ -249,6 +253,8 @@ export function doAction(s, key, rng = Math.random) {
     deltas[statName(k)] = g;
   }
   if (a.cost) { s.money -= a.cost; deltas['돈'] = -a.cost; }
+  const turn = (s.counts[key] || 0) + 1;
+  let face;
   let line = a.line;
   if (a.pay) { s.money += a.pay; deltas['돈'] = a.pay; }
   if (key === 'league') {
@@ -256,6 +262,7 @@ export function doAction(s, key, rng = Math.random) {
     const points = (win ? 900 : 150) * STAGES[stageIndex(s.day)].mult;
     s.points += points;
     if (win) s.ttWins++;
+    face = matchFace(win, turn);
     deltas['포인트'] = points;
     line = win ? '리그에서 이겼어! 마지막 서브가 통했어.' : '리그에서 졌어. 다음엔 리시브를 바꿔 볼래.';
   }
@@ -265,10 +272,10 @@ export function doAction(s, key, rng = Math.random) {
   }
   s.cond += a.cond; deltas['컨디션'] = a.cond;
   s.ap -= 1;
-  s.counts[key] = (s.counts[key] || 0) + 1;
+  s.counts[key] = turn;
   s.today.push(a.icon);
   tidy(s);
-  return { line: f < 1 && key !== 'league' ? '조금 힘들어…' : line, deltas };
+  return { face: face ?? turnFace(a.faces, turn), line: f < 1 && key !== 'league' ? '조금 힘들어…' : line, deltas };
 }
 
 export function doMatch(s, rng = Math.random) {
@@ -286,7 +293,7 @@ export function doMatch(s, rng = Math.random) {
   s.ap -= 2; s.matchDone = true; s.today.push(mt.icon, mt.icon);
   tidy(s);
   return {
-    win,
+    win, face: matchFace(win, s.day),
     line: win ? '상 받았어! 봤지?' : '다음엔 꼭 이길 거야',
     deltas: { ...(points && { 포인트: Math.round(points) }), ...(prize && { 돈: prize }), ...(win && { [statName(mt.stat)]: 3 }), 컨디션: -15 },
   };

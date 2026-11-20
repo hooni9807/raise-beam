@@ -22,7 +22,7 @@ for (const root of ['img', 'img/female']) {
   for (const stage of L.STAGES) {
     checkArt(`stages/${stage.id}`);
     checkArt(`stages/yawn/${stage.id}`);
-    for (const face of ['focus', 'determined', 'praised', 'victory', 'defeat', 'sick', 'relaxed', 'surprised']) {
+    for (const face of ['focus', 'determined', 'praised', 'victory', 'defeat', 'sick', 'relaxed', 'surprised', 'bite', 'pout', 'peace', 'doze']) {
       checkArt(`situations/${stage.id}/${face}`);
     }
   }
@@ -47,6 +47,24 @@ function seeded(seed) {
   assert.ok(L.doAction(s, 'league').error);
   assert.equal(L.clubVisits(s), 2);
   assert.equal(L.fmtNum(128000), '13만');
+}
+
+// 사진에서 그린 표정은 실제 행동 결과에서 선택되고 반복하면 다른 표정이 나온다.
+for (const [action, first, second] of [
+  ['meal', 'bite', 'relaxed'], ['rest', 'doze', 'relaxed'], ['teach', 'praised', 'peace'],
+]) {
+  const s = L.newGame();
+  assert.equal(L.doAction(s, action).face, first);
+  assert.equal(L.doAction(s, action).face, second);
+}
+for (const [roll, first, second] of [[0, 'peace', 'victory'], [0.999, 'pout', 'defeat']]) {
+  const s = L.newGame();
+  assert.equal(L.doMatch(s, () => roll).face, first);
+  L.endDay(s, () => 0.999);
+  assert.equal(L.doMatch(s, () => roll).face, second);
+  const player = L.newGame();
+  assert.equal(L.doAction(player, 'league', () => roll).face, first);
+  assert.equal(L.doAction(player, 'league', () => roll).face, second);
 }
 
 const TRAIN = { skill: 'lesson', stamina: 'run', smarts: 'study', courage: 'safety', grit: 'farm', manner: 'volunteer', craft: 'craft' };

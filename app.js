@@ -1,6 +1,6 @@
-import * as L from './logic.js?v=life-letters';
+import * as L from './logic.js?v=photo-expressions';
 import { playPrologue } from './prologue.js?v=birth1996';
-import { openTutorial } from './tutorial.js';
+import { openTutorial } from './tutorial.js?v=photo-expressions';
 
 const KEY = 'raise-beam-v3';
 const DEX_KEY = 'raise-beam-endings';
@@ -48,10 +48,6 @@ const imageRoot = () => state?.gender === 'female' ? 'img/female' : 'img';
 const stageImg = (stage, yawn) => `${imageRoot()}/stages/${yawn ? 'yawn/' : ''}${stage}.webp`;
 const endingImg = (id, yawn) => `${imageRoot()}/endings/${yawn ? 'yawn/' : ''}${id}.webp`;
 const situationImg = (stage, face) => `${imageRoot()}/situations/${stage}/${face}.webp`;
-const actionFaces = {
-  meal: 'relaxed', study: 'focus', run: 'victory',
-  safety: 'focus', farm: 'surprised', volunteer: 'praised', craft: 'victory', rest: 'relaxed',
-};
 let reaction = null;
 let reactionTimer;
 function react(face, ms = 3200) {
@@ -193,12 +189,12 @@ function render() {
 }
 
 function say(text) { $('bubble').textContent = text; }
-// 캐릭터를 누르면 잠깐 하품
+// 캐릭터를 누르면 컨디션에 맞게 반응
 $('sprite').addEventListener('click', () => {
   if (state.ending) return;
   say(state.cond < TIRED ? '너무 졸려… 좀 쉬고 싶어' : '하암… 왜 불러?');
   beep(330, 0.12);
-  react('yawn', 1800); render();
+  react(state.cond < TIRED ? 'doze' : 'yawn', 1800); render();
 });
 // 하품 그림 미리 불러 두기 (바뀔 때 깜빡이지 않게)
 for (const st of L.STAGES) new Image().src = stageImg(st.id, true);
@@ -313,12 +309,10 @@ $('pickForm').addEventListener('submit', e => {
   e.preventDefault();
   const key = new FormData(e.target).get('choice');
   if (!L.CLUB[key]) return;
-  const wins = state.ttWins;
   const result = L.doAction(state, key);
   if (result.error) { $('pickLead').textContent = result.error; return; }
   $('pick').close();
-  const face = { lesson: 'determined', teach: 'praised', league: state.ttWins > wins ? 'victory' : 'defeat' };
-  react(face[key]);
+  react(result.face);
   beep(660);
   afterChange(result);
 });
@@ -333,7 +327,7 @@ $('actions').addEventListener('click', (e) => {
     return;
   }
   const res = L.doAction(state, b.dataset.act);
-  if (!res.error) { react(actionFaces[b.dataset.act]); beep(520 + Math.random() * 300); }
+  if (!res.error) { react(res.face); beep(520 + Math.random() * 300); }
   afterChange(res);
   if (!res.error && b.dataset.act === 'rest') say('푹 쉬니까 기분 좋아!');
   if (!res.error && state.cond <= 15) toast(`${L.SON.nick}이가 많이 지쳤어요. 이대로 하루를 마치면 지친 날로 기록돼요.`);
@@ -344,10 +338,10 @@ function onMatch() {
   const res = L.doMatch(state);
   if (!res.error) {
     jingle(res.win ? [523, 659, 784, 1046] : [392, 330]);
-    react(res.win ? 'victory' : 'defeat');
+    react(res.face);
     modal(res.win
-      ? `${modalFace('victory')}<p class="m-title">도전 성공!</p><p class="m-text">"${mt.name}"에서 상장을 받았어요.${mt.points ? ' 탁구 랭킹 포인트도 올랐어요.' : ''}</p>`
-      : `${modalFace('defeat')}<p class="m-title">아쉽게 떨어졌어요</p><p class="m-text">${josa(L.statName(mt.stat), '을', '를')} 조금 더 키우면 성공률이 올라가요.</p>`);
+      ? `${modalFace(res.face)}<p class="m-title">도전 성공!</p><p class="m-text">"${mt.name}"에서 상장을 받았어요.${mt.points ? ' 탁구 랭킹 포인트도 올랐어요.' : ''}</p>`
+      : `${modalFace(res.face)}<p class="m-title">아쉽게 떨어졌어요</p><p class="m-text">${josa(L.statName(mt.stat), '을', '를')} 조금 더 키우면 성공률이 올라가요.</p>`);
   }
   afterChange(res);
 }

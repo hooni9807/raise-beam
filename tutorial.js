@@ -1,8 +1,7 @@
-import { ACTIONS, AP_PER_DAY, newGame, doAction, endDay } from './logic.js?v=life-letters';
+import { ACTIONS, AP_PER_DAY, newGame, doAction, endDay } from './logic.js?v=photo-expressions';
 
 const SEEN = 'raise-beam-tutorial-v1';
 const activities = ['study', 'run', 'rest'];
-const faces = { study: 'focus', run: 'victory', rest: 'relaxed' };
 const $ = id => document.getElementById(id);
 const dialog = $('tutorial');
 const choices = $('tutorialChoices');
@@ -11,6 +10,7 @@ let dismissed = false;
 let practice;
 let step;
 let activity;
+let face;
 let feedback;
 
 choices.innerHTML = activities.map(key =>
@@ -45,7 +45,7 @@ function showPage() {
   $('tutorialCondition').textContent = `컨디션 ${practice.cond}% · ${practice.money.toLocaleString('ko-KR')}원`;
   const root = practice.gender === 'female' ? 'img/female' : 'img';
   $('tutorialPortrait').src = activity && step === 2
-    ? `${root}/situations/baby/${faces[activity]}.webp` : `${root}/stages/baby.webp`;
+    ? `${root}/situations/baby/${face}.webp` : `${root}/stages/baby.webp`;
   $('tutorialSlots').innerHTML = Array.from({length: AP_PER_DAY}, (_, i) =>
     practice.today[i] ? `<li class="done">${ACTIONS[activity].name}</li>` : '<li>빈칸</li>'
   ).join('');
@@ -65,6 +65,7 @@ choices.onclick = event => {
   const stat = Object.entries(result.deltas).find(([name]) => name !== '돈' && name !== '컨디션');
   const gain = stat ? `${stat[0]} +${stat[1]} · ` : '';
   activity = key;
+  face = result.face;
   feedback = `${ACTIONS[key].name} 한 칸! ${gain}컨디션 ${before}% → ${practice.cond}%.`;
   step = 2;
   showPage();
